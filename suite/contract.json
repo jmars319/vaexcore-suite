@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "suiteName": "vaexcore",
+  "discovery": {
+    "macOSDirectory": "~/Library/Application Support/vaexcore/suite",
+    "windowsDirectory": "%APPDATA%\\vaexcore\\suite",
+    "heartbeatStaleMs": 30000,
+    "schemaVersion": 1
+  },
+  "handoffs": {
+    "macOSDirectory": "~/Library/Application Support/vaexcore/suite/handoffs",
+    "windowsDirectory": "%APPDATA%\\vaexcore\\suite\\handoffs",
+    "pulseRecordingIntakeFile": "pulse-recording-intake.json"
+  },
+  "markerContract": {
+    "name": "vaexcore.studio.marker.v1",
+    "schemaVersion": 1,
+    "requiredMetadataFields": [
+      "contract",
+      "schemaVersion",
+      "eventType",
+      "source",
+      "createdAt"
+    ]
+  },
+  "apps": [
+    {
+      "id": "vaexcore-studio",
+      "name": "vaexcore studio",
+      "bundleId": "com.vaexcore.studio",
+      "macOSInstallPath": "/Applications/vaexcore studio.app",
+      "windowsInstallPath": "%LOCALAPPDATA%\\Programs\\vaexcore studio\\vaexcore studio.exe",
+      "launchName": "vaexcore studio",
+      "discoveryFile": "vaexcore-studio.json",
+      "healthEndpoint": "http://127.0.0.1:51287/health",
+      "capabilities": [
+        "studio.api",
+        "recording.control",
+        "pulse.recording.handoff",
+        "suite.status",
+        "suite.launcher"
+      ]
+    },
+    {
+      "id": "vaexcore-pulse",
+      "name": "vaexcore pulse",
+      "bundleId": "com.vaexil.vaexcore.pulse",
+      "macOSInstallPath": "/Applications/vaexcore pulse.app",
+      "windowsInstallPath": "%LOCALAPPDATA%\\Programs\\vaexcore pulse\\vaexcore pulse.exe",
+      "launchName": "vaexcore pulse",
+      "discoveryFile": "vaexcore-pulse.json",
+      "healthEndpoint": "http://127.0.0.1:4010/health",
+      "capabilities": [
+        "pulse.api",
+        "highlight.review",
+        "studio.recording.intake",
+        "suite.launcher"
+      ]
+    },
+    {
+      "id": "vaexcore-console",
+      "name": "vaexcore console",
+      "bundleId": "com.vaexil.vaexcore.console",
+      "macOSInstallPath": "/Applications/vaexcore console.app",
+      "windowsInstallPath": "%LOCALAPPDATA%\\Programs\\vaexcore console\\vaexcore console.exe",
+      "launchName": "vaexcore console",
+      "discoveryFile": "vaexcore-console.json",
+      "healthEndpoint": "http://127.0.0.1:3434/api/status",
+      "capabilities": [
+        "console.setup",
+        "twitch.operations",
+        "studio.chat-markers",
+        "studio.giveaway-event-markers",
+        "suite.launcher"
+      ]
+    }
+  ]
+}

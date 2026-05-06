@@ -1,0 +1,17 @@
+.DS_Store
+
+# App repos are cloned beside the suite tooling; keep their source in their own repos.
+/studio/
+/pulse/
+/console/
+
+# Local data and generated outputs.
+/.local/
+/data/
+/dist/
+/vaexcore * logo*.jpg
+
+# Dependency/build folders if scripts are run from this container.
+node_modules/
+target/
+release/

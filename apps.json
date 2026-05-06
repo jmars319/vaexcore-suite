@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "apps": [
+    {
+      "id": "vaexcore-studio",
+      "name": "vaexcore studio",
+      "repo": "https://github.com/jmars319/vaexcore-studio",
+      "path": "studio",
+      "branch": "main",
+      "windowsDistCommand": "npm run app:dist:windows",
+      "macBuildCommand": "npm run tauri -w apps/desktop -- build --bundles app"
+    },
+    {
+      "id": "vaexcore-pulse",
+      "name": "vaexcore pulse",
+      "repo": "https://github.com/jmars319/vaexcore-pulse",
+      "path": "pulse",
+      "branch": "main",
+      "windowsDistCommand": "pnpm app:dist:windows",
+      "macBuildCommand": "pnpm app:build"
+    },
+    {
+      "id": "vaexcore-console",
+      "name": "vaexcore console",
+      "repo": "https://github.com/jmars319/vaexcore-console",
+      "path": "console/VaexCore",
+      "branch": "main",
+      "windowsDistCommand": "npm run app:dist:windows",
+      "macBuildCommand": "npm run app:build"
+    }
+  ]
+}
+
