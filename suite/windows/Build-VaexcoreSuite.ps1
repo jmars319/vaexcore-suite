@@ -302,7 +302,7 @@ function Copy-ProjectArtifacts {
 
   foreach ($file in $files) {
     Copy-Item -Force $file.FullName $target
-    Write-Host "  $Name: $($file.Name)"
+    Write-Host "  ${Name}: $($file.Name)"
   }
 }
 

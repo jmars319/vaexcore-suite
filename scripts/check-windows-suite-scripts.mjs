@@ -1,17 +1,32 @@
 #!/usr/bin/env node
 import { execFileSync } from "node:child_process";
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { delimiter, join } from "node:path";
+import { findLiteralColonVariableIssues } from "./lib/powershell-static-checks.mjs";
 import { suiteRoot } from "./lib/suite-config.mjs";
+
+const scripts = listPowerShellFiles(join(suiteRoot, "suite/windows"));
+const interpolationIssues = scripts.flatMap((script) =>
+  findLiteralColonVariableIssues(readFileSync(script, "utf8"), script)
+);
+
+if (interpolationIssues.length > 0) {
+  for (const issue of interpolationIssues) {
+    console.error(
+      `${issue.filePath}:${issue.line}:${issue.column}: PowerShell variables followed by literal ':' must use braces: \${${issue.variableName}}:`
+    );
+  }
+  process.exit(1);
+}
 
 const pwsh = findExecutable("pwsh");
 if (!pwsh) {
-  console.log("PowerShell static check skipped: pwsh is not installed.");
+  console.log(`PowerShell parser check skipped: pwsh is not installed; static guards passed for ${scripts.length} scripts.`);
   process.exit(0);
 }
 
-const scripts = listPowerShellFiles(join(suiteRoot, "suite/windows"));
 for (const script of scripts) {
+  console.log(`Checking PowerShell syntax: ${script}`);
   const command = [
     "$tokens = $null",
     "$errors = $null",
