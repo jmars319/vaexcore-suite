@@ -9,27 +9,50 @@ jobs:
   contract:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: "22"
-      - run: ./scripts/clone-or-update-apps.sh
-      - run: node --test scripts/tests/*.test.mjs
-      - run: node scripts/validate-suite-config.mjs
-      - run: node scripts/generate-suite-protocol.mjs --check
-      - run: node scripts/smoke-suite-contracts.mjs
-      - run: node scripts/check-release-env.mjs
-      - run: node scripts/check-windows-suite-scripts.mjs
+      - name: Contract checks
+        run: |
+          echo "::group::Clone app repos"
+          ./scripts/clone-or-update-apps.sh
+          echo "::endgroup::"
+
+          echo "::group::Validate app repo branches"
+          node scripts/check-suite-repos.mjs
+          echo "::endgroup::"
+
+          echo "::group::Run suite contract tests"
+          node --test scripts/tests/*.test.mjs
+          node scripts/validate-suite-config.mjs
+          node scripts/generate-suite-protocol.mjs --check
+          node scripts/smoke-suite-contracts.mjs
+          echo "::endgroup::"
+
+          echo "::group::Validate release and Windows scripts"
+          node scripts/check-release-env.mjs
+          node scripts/check-windows-suite-scripts.mjs --require-pwsh
+          echo "::endgroup::"
 
   release-fixtures:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: "22"
-      - run: ./scripts/clone-or-update-apps.sh
-      - run: |
+      - name: Release fixture checks
+        run: |
+          echo "::group::Clone app repos"
+          ./scripts/clone-or-update-apps.sh
+          echo "::endgroup::"
+
+          echo "::group::Validate app repo branches"
+          node scripts/check-suite-repos.mjs
+          echo "::endgroup::"
+
+          echo "::group::Run release fixture tests"
           node --test \
             scripts/tests/release-manifest.test.mjs \
             scripts/tests/heartbeat-validation.test.mjs \
@@ -37,21 +60,33 @@ jobs:
             scripts/tests/windows-manifest.test.mjs \
             scripts/tests/protocol-parity.test.mjs \
             scripts/tests/suite-contract-fixtures.test.mjs
+          echo "::endgroup::"
 
   integration-smoke:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: "22"
       - run: rustup default stable
       - run: corepack enable
-      - run: ./scripts/clone-or-update-apps.sh
-      - run: npm ci
-        working-directory: studio
-      - run: pnpm install --frozen-lockfile
-        working-directory: pulse
-      - run: npm ci
-        working-directory: console/VaexCore
-      - run: ./scripts/smoke-all.sh
+      - name: Integration smoke
+        run: |
+          echo "::group::Clone app repos"
+          ./scripts/clone-or-update-apps.sh
+          echo "::endgroup::"
+
+          echo "::group::Validate app repo branches"
+          node scripts/check-suite-repos.mjs
+          echo "::endgroup::"
+
+          echo "::group::Install app dependencies"
+          (cd studio && npm ci)
+          (cd pulse && pnpm install --frozen-lockfile)
+          (cd console/VaexCore && npm ci)
+          echo "::endgroup::"
+
+          echo "::group::Run integration smoke"
+          ./scripts/smoke-all.sh
+          echo "::endgroup::"

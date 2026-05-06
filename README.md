@@ -144,8 +144,26 @@ Regenerates shared TypeScript/Rust constants from `suite/contract.json`.
 node scripts/check-windows-suite-scripts.mjs
 ```
 
-Parses the Windows PowerShell suite scripts when `pwsh` is installed, and skips
-cleanly on machines without PowerShell.
+Runs static guards for the Windows PowerShell scripts and `.cmd` launchers, then
+parses the PowerShell scripts when `pwsh` is installed. CI runs this with
+`--require-pwsh` so parser coverage cannot silently downgrade on the hosted
+runner.
+
+```bash
+node scripts/check-suite-repos.mjs
+```
+
+Verifies that local app repos are checked out on their configured branch, track
+`origin/main`, and point at the expected GitHub origin. Suite CI runs this after
+cloning the app repos.
+
+```bash
+node scripts/check-ci-status.mjs
+node scripts/check-ci-status.mjs --require-green
+```
+
+Prints the latest `main` CI run for Suite, Studio, Pulse, and Console. The
+`--require-green` form is the code-only gate to run before release packaging.
 
 ```powershell
 .\suite\windows\Build-VaexcoreSuite.ps1
@@ -155,6 +173,8 @@ On Windows, builds the three Windows desktop artifacts and collects them under
 `dist\windows-suite\`. Use `-InstallPrerequisites` on a fresh Windows 11 machine
 to install common build prerequisites through `winget`. The script will clone or
 update the three app repos before building unless `-SkipAppUpdate` is passed.
+The generated README content in the PowerShell build script uses literal
+here-strings so Markdown code fences do not get parsed as PowerShell escapes.
 
 The Windows kit also includes double-clickable launchers:
 

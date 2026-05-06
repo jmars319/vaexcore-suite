@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 echo "== vaexcore suite config =="
-(cd "$ROOT_DIR" && node --test scripts/tests/*.test.mjs && node scripts/validate-suite-config.mjs --require-local-repos && node scripts/generate-suite-protocol.mjs --check && node scripts/smoke-suite-contracts.mjs)
+(cd "$ROOT_DIR" && node --test scripts/tests/*.test.mjs && node scripts/validate-suite-config.mjs --require-local-repos && node scripts/check-suite-repos.mjs && node scripts/generate-suite-protocol.mjs --check && node scripts/smoke-suite-contracts.mjs)
 
 echo "== vaexcore studio =="
 (cd "$ROOT_DIR/studio" && cargo test -p vaexcore-api && npm run typecheck)

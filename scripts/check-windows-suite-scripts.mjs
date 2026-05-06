@@ -7,9 +7,19 @@ import {
   findLiteralColonVariableIssues,
 } from "./lib/powershell-static-checks.mjs";
 import { suiteRoot } from "./lib/suite-config.mjs";
+import { findCmdLauncherIssues } from "./lib/windows-launcher-static-checks.mjs";
 
-const scripts = listPowerShellFiles(join(suiteRoot, "suite/windows"));
-const staticIssues = scripts.flatMap((script) => {
+const requirePwsh = process.argv.includes("--require-pwsh");
+const unknownArgs = process.argv.slice(2).filter((arg) => !["--require-pwsh"].includes(arg));
+if (unknownArgs.length > 0) {
+  console.error(`Unknown option: ${unknownArgs.join(", ")}`);
+  process.exit(2);
+}
+
+const scripts = listFiles(join(suiteRoot, "suite/windows"), ".ps1");
+const launchers = listFiles(join(suiteRoot, "suite/windows"), ".cmd");
+const staticIssues = [
+  ...scripts.flatMap((script) => {
   const source = readFileSync(script, "utf8");
   return [
     ...findLiteralColonVariableIssues(source, script).map((issue) => ({
@@ -21,7 +31,9 @@ const staticIssues = scripts.flatMap((script) => {
       message: "Markdown code fences use backticks; put them in single-quoted here-strings.",
     })),
   ];
-});
+  }),
+  ...launchers.flatMap((launcher) => findCmdLauncherIssues(readFileSync(launcher, "utf8"), launcher)),
+];
 
 if (staticIssues.length > 0) {
   for (const issue of staticIssues) {
@@ -32,7 +44,12 @@ if (staticIssues.length > 0) {
 
 const pwsh = findExecutable("pwsh");
 if (!pwsh) {
-  console.log(`PowerShell parser check skipped: pwsh is not installed; static guards passed for ${scripts.length} scripts.`);
+  const message = `PowerShell parser check skipped: pwsh is not installed; static guards passed for ${scripts.length} scripts and ${launchers.length} launchers.`;
+  if (requirePwsh) {
+    console.error(message);
+    process.exit(1);
+  }
+  console.log(message);
   process.exit(0);
 }
 
@@ -49,15 +66,15 @@ for (const script of scripts) {
   });
 }
 
-console.log(`PowerShell static check passed: ${scripts.length} scripts`);
+console.log(`PowerShell static check passed: ${scripts.length} scripts and ${launchers.length} launchers`);
 
-function listPowerShellFiles(dir) {
+function listFiles(dir, extension) {
   const results = [];
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const path = join(dir, entry.name);
     if (entry.isDirectory()) {
-      results.push(...listPowerShellFiles(path));
-    } else if (entry.isFile() && entry.name.endsWith(".ps1")) {
+      results.push(...listFiles(path, extension));
+    } else if (entry.isFile() && entry.name.endsWith(extension)) {
       results.push(path);
     }
   }
