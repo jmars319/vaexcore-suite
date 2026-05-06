@@ -2,19 +2,30 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { delimiter, join } from "node:path";
-import { findLiteralColonVariableIssues } from "./lib/powershell-static-checks.mjs";
+import {
+  findExpandableHereStringFenceIssues,
+  findLiteralColonVariableIssues,
+} from "./lib/powershell-static-checks.mjs";
 import { suiteRoot } from "./lib/suite-config.mjs";
 
 const scripts = listPowerShellFiles(join(suiteRoot, "suite/windows"));
-const interpolationIssues = scripts.flatMap((script) =>
-  findLiteralColonVariableIssues(readFileSync(script, "utf8"), script)
-);
+const staticIssues = scripts.flatMap((script) => {
+  const source = readFileSync(script, "utf8");
+  return [
+    ...findLiteralColonVariableIssues(source, script).map((issue) => ({
+      ...issue,
+      message: `PowerShell variables followed by literal ':' must use braces: \${${issue.variableName}}:`,
+    })),
+    ...findExpandableHereStringFenceIssues(source, script).map((issue) => ({
+      ...issue,
+      message: "Markdown code fences use backticks; put them in single-quoted here-strings.",
+    })),
+  ];
+});
 
-if (interpolationIssues.length > 0) {
-  for (const issue of interpolationIssues) {
-    console.error(
-      `${issue.filePath}:${issue.line}:${issue.column}: PowerShell variables followed by literal ':' must use braces: \${${issue.variableName}}:`
-    );
+if (staticIssues.length > 0) {
+  for (const issue of staticIssues) {
+    console.error(`${issue.filePath}:${issue.line}:${issue.column}: ${issue.message}`);
   }
   process.exit(1);
 }

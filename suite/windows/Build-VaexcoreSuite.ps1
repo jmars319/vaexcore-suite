@@ -248,10 +248,11 @@ function Copy-Artifacts {
   Copy-Item -Force (Join-Path $ScriptDir "assets\vaexcore-suite.ico") (Join-Path $assetTarget "vaexcore-suite.ico")
   Copy-Item -Force (Join-Path $ScriptDir "assets\vaexcore-suite.jpg") (Join-Path $assetTarget "vaexcore-suite.jpg")
 
-  $summary = @"
+  $builtAt = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+  $summary = @'
 # vaexcore Windows Suite
 
-Built: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+Built: __BUILT_AT__
 
 Install order:
 
@@ -273,7 +274,7 @@ Suite discovery path:
 ```text
 %APPDATA%\vaexcore\suite
 ```
-"@
+'@.Replace("__BUILT_AT__", $builtAt)
   Set-Content -Encoding UTF8 -Path (Join-Path $ArtifactDir "README.md") -Value $summary
   Write-Host "Artifacts collected at $ArtifactDir" -ForegroundColor Green
 }
