@@ -105,6 +105,27 @@ Runs the release wrapper for the macOS suite: checks, staging build, checksums,
 manifest validation, and a final artifact list.
 
 ```bash
+node scripts/inspect-mac-artifacts.mjs --artifact-dir dist/mac-suite
+```
+
+Unzips the macOS suite artifacts into temporary folders and verifies each
+extracted `.app` bundle identifier against `suite/contract.json`.
+
+```bash
+node scripts/check-release-env.mjs
+```
+
+Checks whether the current shell has the Apple notarization variables required
+when `VAEXCORE_MAC_NOTARIZE=1`.
+
+```bash
+node scripts/bump-suite-version.mjs --version 0.1.1
+```
+
+Updates `suite/release.json` with a new suite version and the current app
+compatibility matrix.
+
+```bash
 node scripts/generate-suite-protocol.mjs
 ```
 

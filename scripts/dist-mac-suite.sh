@@ -59,5 +59,6 @@ node "$ROOT_DIR/scripts/write-suite-manifest.mjs" \
   --arch "$(uname -m)" \
   --artifact-dir "$ARTIFACT_DIR"
 node "$ROOT_DIR/scripts/validate-release-manifest.mjs" "${ARTIFACT_DIR}/manifest.json"
+node "$ROOT_DIR/scripts/inspect-mac-artifacts.mjs" --artifact-dir "$ARTIFACT_DIR"
 
 echo "macOS suite artifacts are ready in ${ARTIFACT_DIR}."

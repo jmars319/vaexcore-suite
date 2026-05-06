@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "appId": "vaexcore-pulse",
+  "appName": "vaexcore pulse",
+  "bundleIdentifier": "com.vaexil.vaexcore.pulse",
+  "version": "0.2.0",
+  "pid": 1234,
+  "startedAt": "1778025273",
+  "updatedAt": "1778048017",
+  "apiUrl": "http://127.0.0.1:4010",
+  "wsUrl": null,
+  "healthUrl": "http://127.0.0.1:4010/health",
+  "capabilities": [
+    "pulse.api",
+    "highlight.review"
+  ],
+  "launchName": "vaexcore pulse",
+  "suiteSessionId": null,
+  "activity": "ready",
+  "activityDetail": "Ready for review",
+  "localRuntime": {
+    "contractVersion": 1,
+    "mode": "local-first",
+    "state": "ready",
+    "appStorageDir": "/tmp/vaexcore/pulse",
+    "suiteDir": "/tmp/vaexcore/suite",
+    "secureStorage": "none-required",
+    "secretStorageState": "not-applicable",
+    "durableStorage": [
+      "SQLite review library"
+    ],
+    "networkPolicy": "localhost-only",
+    "dependencies": [
+      {
+        "name": "pulse-api",
+        "kind": "local-http-service",
+        "state": "reachable",
+        "detail": "http://127.0.0.1:4010"
+      }
+    ]
+  }
+}

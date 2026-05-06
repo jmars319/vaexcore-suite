@@ -1,7 +1,14 @@
 {
   "schemaVersion": 1,
+  "version": "0.1.0",
   "channel": "local",
   "title": "vaexcore suite local distribution",
+  "updatedAt": "2026-05-06T00:00:00Z",
+  "compatibleApps": {
+    "vaexcore-studio": "0.1.0",
+    "vaexcore-pulse": "0.2.0",
+    "vaexcore-console": "0.1.2"
+  },
   "notes": [
     "Builds Studio, Pulse, and Console from their main branches.",
     "Packages local-first macOS and Windows desktop artifacts.",

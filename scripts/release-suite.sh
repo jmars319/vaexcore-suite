@@ -26,6 +26,7 @@ if [[ "$SKIP_SMOKE" -ne 1 ]]; then
   "$ROOT_DIR/scripts/check-all.sh" --skip-package
 fi
 
+node "$ROOT_DIR/scripts/check-release-env.mjs"
 "$ROOT_DIR/scripts/dist-mac-suite.sh" --artifact-dir "$ARTIFACT_DIR"
 
 echo "vaexcore suite release artifacts:"

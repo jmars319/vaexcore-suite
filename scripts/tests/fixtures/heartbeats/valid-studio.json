@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "appId": "vaexcore-studio",
+  "appName": "vaexcore studio",
+  "bundleIdentifier": "com.vaexcore.studio",
+  "version": "0.1.0",
+  "pid": 1234,
+  "startedAt": "2026-05-06T12:00:00Z",
+  "updatedAt": "2026-05-06T12:00:15Z",
+  "apiUrl": "http://127.0.0.1:51287",
+  "wsUrl": "ws://127.0.0.1:51287/events",
+  "healthUrl": "http://127.0.0.1:51287/health",
+  "capabilities": [
+    "studio.api",
+    "recording.control",
+    "pulse.recording.handoff"
+  ],
+  "launchName": "vaexcore studio",
+  "suiteSessionId": null,
+  "activity": "ready",
+  "activityDetail": "Ready for recording",
+  "localRuntime": {
+    "contractVersion": 1,
+    "mode": "local-first",
+    "state": "ready",
+    "appStorageDir": "/tmp/vaexcore/studio",
+    "suiteDir": "/tmp/vaexcore/suite",
+    "secureStorage": "keychain",
+    "secretStorageState": "ready",
+    "durableStorage": [
+      "SQLite profiles and settings"
+    ],
+    "networkPolicy": "localhost-only",
+    "dependencies": [
+      {
+        "name": "studio-api",
+        "kind": "local-http-service",
+        "state": "reachable",
+        "detail": "http://127.0.0.1:51287"
+      }
+    ]
+  }
+}

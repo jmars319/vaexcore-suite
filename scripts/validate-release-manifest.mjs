@@ -17,6 +17,10 @@ if (manifest.manifestVersion !== 1) errors.push("manifestVersion must be 1.");
 if (!manifest.suiteName) errors.push("suiteName is required.");
 if (!manifest.builtAt || Number.isNaN(Date.parse(manifest.builtAt))) errors.push("builtAt must be a date-time.");
 if (!manifest.release || manifest.release.schemaVersion !== 1) errors.push("release metadata with schemaVersion 1 is required.");
+if (!manifest.release?.version) errors.push("release.version is required.");
+if (!manifest.release?.compatibleApps || typeof manifest.release.compatibleApps !== "object") {
+  errors.push("release.compatibleApps is required.");
+}
 if (!Array.isArray(manifest.apps) || manifest.apps.length === 0) errors.push("apps must be a non-empty array.");
 if (!Array.isArray(manifest.artifacts) || manifest.artifacts.length === 0) errors.push("artifacts must be a non-empty array.");
 
@@ -25,6 +29,12 @@ for (const app of manifest.apps ?? []) {
     if (!app[field]) {
       errors.push(`app ${app.id ?? "(unknown)"} is missing ${field}.`);
     }
+  }
+  const expectedVersion = manifest.release?.compatibleApps?.[app.id];
+  if (!expectedVersion) {
+    errors.push(`release.compatibleApps is missing ${app.id}.`);
+  } else if (app.version !== expectedVersion) {
+    errors.push(`app ${app.id} version ${app.version} does not match release compatibility ${expectedVersion}.`);
   }
 }
 

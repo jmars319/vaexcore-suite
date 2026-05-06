@@ -1,0 +1,39 @@
+name: Suite CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  contract:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: ./scripts/clone-or-update-apps.sh
+      - run: node --test scripts/tests/*.test.mjs
+      - run: node scripts/validate-suite-config.mjs
+      - run: node scripts/generate-suite-protocol.mjs --check
+      - run: node scripts/smoke-suite-contracts.mjs
+      - run: node scripts/check-release-env.mjs
+
+  integration-smoke:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: rustup default stable
+      - run: corepack enable
+      - run: ./scripts/clone-or-update-apps.sh
+      - run: npm ci
+        working-directory: studio
+      - run: pnpm install --frozen-lockfile
+        working-directory: pulse
+      - run: npm ci
+        working-directory: console/VaexCore
+      - run: ./scripts/smoke-all.sh
