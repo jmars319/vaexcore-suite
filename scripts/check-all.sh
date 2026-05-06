@@ -39,7 +39,7 @@ if [[ "$MANIFEST_ONLY" -eq 1 ]]; then
   exit 0
 fi
 
-(cd "$ROOT_DIR" && node --test scripts/tests/*.test.mjs && node scripts/validate-suite-config.mjs --require-local-repos && node scripts/generate-suite-protocol.mjs --check && node scripts/smoke-suite-contracts.mjs)
+(cd "$ROOT_DIR" && node --test scripts/tests/*.test.mjs && node scripts/validate-suite-config.mjs --require-local-repos && node scripts/generate-suite-protocol.mjs --check && node scripts/smoke-suite-contracts.mjs && node scripts/check-windows-suite-scripts.mjs)
 
 if [[ "$SKIP_APP_SMOKE" -eq 1 ]]; then
   echo "Skipping app smoke checks because --skip-app-smoke was passed."

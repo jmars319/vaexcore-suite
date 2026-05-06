@@ -38,6 +38,12 @@ for (const app of config.apps) {
   expectEqual(heartbeat.bundleIdentifier, app.bundleId, `${app.discoveryFile}.bundleIdentifier`);
   expectEqual(heartbeat.launchName, app.launchName, `${app.discoveryFile}.launchName`);
   expectEqual(heartbeat.schemaVersion, config.contract.discovery.schemaVersion, `${app.discoveryFile}.schemaVersion`);
+  for (const field of ["apiUrl", "wsUrl", "healthUrl"]) {
+    const value = heartbeat[field];
+    if (value !== null && value !== undefined && !isLocalRuntimeUrl(value)) {
+      errors.push(`${app.discoveryFile}.${field} must be a localhost URL.`);
+    }
+  }
 
   if (strictAge) {
     const ageMs = Date.now() - statSync(path).mtimeMs;
@@ -60,6 +66,15 @@ function expectEqual(actual, expected, label) {
   if (actual !== expected) {
     errors.push(`${label} expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}.`);
   }
+}
+
+function isLocalRuntimeUrl(value) {
+  return typeof value === "string" && (
+    value.startsWith("http://127.0.0.1:") ||
+    value.startsWith("http://localhost:") ||
+    value.startsWith("ws://127.0.0.1:") ||
+    value.startsWith("ws://localhost:")
+  );
 }
 
 function parseArgs(argv) {

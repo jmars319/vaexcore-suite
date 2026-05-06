@@ -19,6 +19,24 @@ jobs:
       - run: node scripts/generate-suite-protocol.mjs --check
       - run: node scripts/smoke-suite-contracts.mjs
       - run: node scripts/check-release-env.mjs
+      - run: node scripts/check-windows-suite-scripts.mjs
+
+  release-fixtures:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: ./scripts/clone-or-update-apps.sh
+      - run: |
+          node --test \
+            scripts/tests/release-manifest.test.mjs \
+            scripts/tests/heartbeat-validation.test.mjs \
+            scripts/tests/mac-artifact-inspection.test.mjs \
+            scripts/tests/windows-manifest.test.mjs \
+            scripts/tests/protocol-parity.test.mjs \
+            scripts/tests/suite-contract-fixtures.test.mjs
 
   integration-smoke:
     runs-on: macos-latest

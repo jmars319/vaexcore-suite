@@ -109,7 +109,15 @@ node scripts/inspect-mac-artifacts.mjs --artifact-dir dist/mac-suite
 ```
 
 Unzips the macOS suite artifacts into temporary folders and verifies each
-extracted `.app` bundle identifier against `suite/contract.json`.
+extracted `.app` bundle identifier, version, executable, icon, and code
+signature against `suite/contract.json`.
+
+```bash
+node scripts/check-release-artifacts.mjs --artifact-dir dist/mac-suite
+```
+
+Runs release manifest validation and macOS artifact inspection without
+rebuilding the apps.
 
 ```bash
 node scripts/check-release-env.mjs
@@ -131,6 +139,13 @@ node scripts/generate-suite-protocol.mjs
 
 Regenerates shared TypeScript/Rust constants from `suite/contract.json`.
 `smoke-all.sh` checks that generated protocol files are current.
+
+```bash
+node scripts/check-windows-suite-scripts.mjs
+```
+
+Parses the Windows PowerShell suite scripts when `pwsh` is installed, and skips
+cleanly on machines without PowerShell.
 
 ```powershell
 .\suite\windows\Build-VaexcoreSuite.ps1
