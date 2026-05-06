@@ -28,3 +28,25 @@ test("latest workflow status uses the newest run after an intermediate failure",
   assert.equal(isGreenRun(latest), true);
   assert.equal(formatRunSummary("suite", latest), "suite: success ba667ca https://example.test/success");
 });
+
+test("missing workflow runs are not green", () => {
+  assert.equal(latestWorkflowRun([], "Suite CI"), null);
+  assert.equal(isGreenRun(null), false);
+});
+
+test("queued workflow runs are not green", () => {
+  const latest = latestWorkflowRun(
+    [
+      {
+        workflowName: "Suite CI",
+        status: "queued",
+        conclusion: "",
+        createdAt: "2026-05-06T20:36:29Z",
+      },
+    ],
+    "Suite CI"
+  );
+
+  assert.equal(isGreenRun(latest), false);
+  assert.equal(formatRunSummary("suite", latest), "suite: queued unknown undefined");
+});

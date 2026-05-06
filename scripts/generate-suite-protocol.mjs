@@ -66,8 +66,7 @@ export type SuiteAppId = (typeof SUITE_APPS)[number]["id"];
 
 function renderRustProtocol() {
   const apps = config.apps;
-  return `${generatedHeader("//")}
-#![allow(dead_code)]
+  return `${generatedHeader("//")}#![allow(dead_code)]
 
 pub const SUITE_DISCOVERY_SCHEMA_VERSION: u8 = ${config.contract.discovery.schemaVersion};
 pub const PULSE_RECORDING_INTAKE_FILE: &str = ${rs(config.contract.handoffs.pulseRecordingIntakeFile)};

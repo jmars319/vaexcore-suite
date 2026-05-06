@@ -195,6 +195,21 @@ suite\windows\Start-VaexcoreConsole.cmd
 together. It records app IDs, bundle IDs, discovery filenames, health endpoints,
 platform install locations, and the Studio-to-Pulse handoff filename.
 
+## Release Gate
+
+Before packaging a suite release, use this order:
+
+```bash
+./scripts/check-all.sh --skip-package
+git push origin main
+node scripts/release-preflight.mjs
+node scripts/check-ci-status.mjs --require-green
+./scripts/release-suite.sh
+```
+
+`release-preflight.mjs` verifies the Suite, Studio, Pulse, and Console repos are
+clean, on `main`, pushed to `origin/main`, and green in GitHub Actions.
+
 ## Suite Discovery
 
 Packaged apps publish heartbeat files in:

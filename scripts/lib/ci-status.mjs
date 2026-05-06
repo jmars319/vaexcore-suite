@@ -39,3 +39,19 @@ export function formatRunSummary(key, run) {
   const conclusion = run.conclusion || run.status;
   return `${key}: ${conclusion} ${sha} ${run.url}`;
 }
+
+export function runStatusRecord(target, run) {
+  return {
+    key: target.key,
+    repo: target.repo,
+    workflowName: target.workflowName,
+    databaseId: run?.databaseId ?? null,
+    status: run?.status ?? "missing",
+    conclusion: run?.conclusion ?? null,
+    headSha: run?.headSha ?? null,
+    url: run?.url ?? null,
+    createdAt: run?.createdAt ?? null,
+    updatedAt: run?.updatedAt ?? null,
+    green: isGreenRun(run),
+  };
+}
