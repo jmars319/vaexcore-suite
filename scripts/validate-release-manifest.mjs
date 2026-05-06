@@ -16,6 +16,7 @@ const errors = [];
 if (manifest.manifestVersion !== 1) errors.push("manifestVersion must be 1.");
 if (!manifest.suiteName) errors.push("suiteName is required.");
 if (!manifest.builtAt || Number.isNaN(Date.parse(manifest.builtAt))) errors.push("builtAt must be a date-time.");
+if (!manifest.release || manifest.release.schemaVersion !== 1) errors.push("release metadata with schemaVersion 1 is required.");
 if (!Array.isArray(manifest.apps) || manifest.apps.length === 0) errors.push("apps must be a non-empty array.");
 if (!Array.isArray(manifest.artifacts) || manifest.artifacts.length === 0) errors.push("artifacts must be a non-empty array.");
 

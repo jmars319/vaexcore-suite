@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "channel": "local",
+  "title": "vaexcore suite local distribution",
+  "notes": [
+    "Builds Studio, Pulse, and Console from their main branches.",
+    "Packages local-first macOS and Windows desktop artifacts.",
+    "Validates suite discovery, handoff, command, and marker contracts before release."
+  ]
+}

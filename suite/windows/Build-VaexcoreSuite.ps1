@@ -311,6 +311,8 @@ Ensure-Repositories
 Install-Dependencies
 Build-Installers
 Copy-Artifacts
+Invoke-Checked $RootDir "node" @("scripts\dist-windows-manifest.mjs", "--artifact-dir", $ArtifactDir, "--arch", "x64")
+Invoke-Checked $RootDir "node" @("scripts\validate-release-manifest.mjs", (Join-Path $ArtifactDir "manifest.json"))
 
 if ($LaunchAfterBuild) {
   & (Join-Path $ScriptDir "Launch-VaexcoreSuite.ps1")

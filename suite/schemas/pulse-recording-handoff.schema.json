@@ -3,6 +3,7 @@
   "$id": "https://vaexcore.local/suite/schemas/pulse-recording-handoff.schema.json",
   "title": "vaexcore Studio to Pulse recording handoff",
   "type": "object",
+  "additionalProperties": false,
   "required": [
     "schemaVersion",
     "requestId",
@@ -21,6 +22,7 @@
     "requestedAt": { "type": "string", "format": "date-time" },
     "recording": {
       "type": "object",
+      "additionalProperties": false,
       "required": ["sessionId", "outputPath", "stoppedAt"],
       "properties": {
         "sessionId": { "type": "string", "minLength": 1 },

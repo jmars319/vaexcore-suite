@@ -42,8 +42,16 @@ smoke checks for Studio, Pulse, and Console.
 ```
 
 Runs config validation, all smoke checks, and a macOS staging distribution build
-with release manifest validation. Set `VAEXCORE_SKIP_MAC_PACKAGE=1` to skip the
-packaging step.
+with release manifest validation. Useful flags:
+
+```bash
+./scripts/check-all.sh --skip-app-smoke
+./scripts/check-all.sh --skip-package
+./scripts/check-all.sh --manifest-only --artifact-dir dist/mac-suite
+```
+
+Set `VAEXCORE_SKIP_MAC_PACKAGE=1` to skip the packaging step through the
+environment.
 
 ```bash
 ./scripts/dev-all.sh
@@ -88,6 +96,20 @@ flows.
 
 Stages the three macOS app bundles under `dist/mac-suite/`, packages each app as
 a zip with a SHA-256 file, and writes `dist/mac-suite/manifest.json`.
+
+```bash
+./scripts/release-suite.sh
+```
+
+Runs the release wrapper for the macOS suite: checks, staging build, checksums,
+manifest validation, and a final artifact list.
+
+```bash
+node scripts/generate-suite-protocol.mjs
+```
+
+Regenerates shared TypeScript/Rust constants from `suite/contract.json`.
+`smoke-all.sh` checks that generated protocol files are current.
 
 ```powershell
 .\suite\windows\Build-VaexcoreSuite.ps1

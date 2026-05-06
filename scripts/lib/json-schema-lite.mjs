@@ -23,19 +23,7 @@ function validateNode(schema, value, path, errors) {
   }
 
   if (typeof value === "string") {
-    if (Number.isInteger(schema.minLength) && value.length < schema.minLength) {
-      errors.push(`${path} must be at least ${schema.minLength} characters.`);
-    }
-    if (schema.format === "date-time" && Number.isNaN(Date.parse(value))) {
-      errors.push(`${path} must be a valid date-time string.`);
-    }
-    if (schema.format === "uri" || schema.format === "uri-reference") {
-      try {
-        new URL(value);
-      } catch {
-        errors.push(`${path} must be a valid URL.`);
-      }
-    }
+    validateString(schema, value, path, errors);
   }
 
   if (typeof value === "number") {
@@ -54,19 +42,86 @@ function validateNode(schema, value, path, errors) {
   }
 
   if (isPlainObject(value)) {
-    const required = schema.required ?? [];
-    for (const key of required) {
-      if (!Object.prototype.hasOwnProperty.call(value, key)) {
-        errors.push(`${path}.${key} is required.`);
-      }
-    }
+    validateObject(schema, value, path, errors);
+  }
+}
 
-    const properties = schema.properties ?? {};
-    for (const [key, childSchema] of Object.entries(properties)) {
-      if (Object.prototype.hasOwnProperty.call(value, key)) {
-        validateNode(childSchema, value[key], `${path}.${key}`, errors);
-      }
+function validateString(schema, value, path, errors) {
+  if (Number.isInteger(schema.minLength) && value.length < schema.minLength) {
+    errors.push(`${path} must be at least ${schema.minLength} characters.`);
+  }
+  if (Number.isInteger(schema.maxLength) && value.length > schema.maxLength) {
+    errors.push(`${path} must be at most ${schema.maxLength} characters.`);
+  }
+  if (schema.pattern && !new RegExp(schema.pattern).test(value)) {
+    errors.push(`${path} must match pattern ${schema.pattern}.`);
+  }
+  if (schema.format === "date-time" && !isStrictDateTime(value)) {
+    errors.push(`${path} must be a valid date-time string.`);
+  }
+  if (schema.format === "uri" && !isStrictUri(value)) {
+    errors.push(`${path} must be a valid absolute URL.`);
+  }
+  if (schema.format === "uri-reference" && !isUriReference(value)) {
+    errors.push(`${path} must be a valid URL reference.`);
+  }
+}
+
+function validateObject(schema, value, path, errors) {
+  const required = schema.required ?? [];
+  for (const key of required) {
+    if (!Object.prototype.hasOwnProperty.call(value, key)) {
+      errors.push(`${path}.${key} is required.`);
     }
+  }
+
+  const properties = schema.properties ?? {};
+  for (const [key, childSchema] of Object.entries(properties)) {
+    if (Object.prototype.hasOwnProperty.call(value, key)) {
+      validateNode(childSchema, value[key], `${path}.${key}`, errors);
+    }
+  }
+
+  const knownProperties = new Set(Object.keys(properties));
+  for (const key of Object.keys(value)) {
+    if (knownProperties.has(key)) {
+      continue;
+    }
+    if (schema.additionalProperties === false) {
+      errors.push(`${path}.${key} is not allowed.`);
+    } else if (schema.additionalProperties && typeof schema.additionalProperties === "object") {
+      validateNode(schema.additionalProperties, value[key], `${path}.${key}`, errors);
+    }
+  }
+}
+
+function isStrictDateTime(value) {
+  if (
+    !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/.test(value)
+  ) {
+    return false;
+  }
+  return !Number.isNaN(Date.parse(value));
+}
+
+function isStrictUri(value) {
+  try {
+    const url = new URL(value);
+    return Boolean(url.protocol && url.hostname);
+  } catch {
+    return false;
+  }
+}
+
+function isUriReference(value) {
+  if (value.trim() === "") {
+    return false;
+  }
+  try {
+    new URL(value, "https://vaexcore.local/");
+    return true;
+  } catch {
+    return false;
   }
 }
 

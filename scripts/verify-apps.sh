@@ -91,4 +91,8 @@ if [[ "$status" -ne 0 ]]; then
   exit "$status"
 fi
 
+if [[ "$STRICT_HEARTBEAT" -eq 1 ]]; then
+  (cd "$ROOT_DIR" && node scripts/validate-heartbeats.mjs --dir "$SUITE_DIR" --strict-age --max-age-ms "$HEARTBEAT_STALE_MS")
+fi
+
 echo "vaexcore app installation verified."

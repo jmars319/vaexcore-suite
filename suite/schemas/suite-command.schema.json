@@ -3,6 +3,7 @@
   "$id": "https://vaexcore.local/suite/schemas/suite-command.schema.json",
   "title": "vaexcore suite command",
   "type": "object",
+  "additionalProperties": false,
   "required": [
     "schemaVersion",
     "commandId",
@@ -16,9 +17,9 @@
   "properties": {
     "schemaVersion": { "type": "integer", "const": 1 },
     "commandId": { "type": "string", "minLength": 1 },
-    "sourceApp": { "type": "string", "minLength": 1 },
+    "sourceApp": { "type": "string", "minLength": 1, "pattern": "^vaexcore-[a-z0-9-]+$" },
     "sourceAppName": { "type": "string", "minLength": 1 },
-    "targetApp": { "type": "string", "minLength": 1 },
+    "targetApp": { "type": "string", "minLength": 1, "pattern": "^vaexcore-[a-z0-9-]+$" },
     "command": { "type": "string", "minLength": 1 },
     "requestedAt": { "type": "string", "format": "date-time" },
     "payload": { "type": "object" }

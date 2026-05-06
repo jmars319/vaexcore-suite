@@ -8,6 +8,7 @@ import {
   gitDirty,
   gitSha,
   loadSuiteConfig,
+  readJsonFile,
   sha256File,
   suiteRoot,
 } from "./lib/suite-config.mjs";
@@ -34,6 +35,7 @@ const manifest = {
     gitSha: gitSha(suiteRoot),
     dirty: gitDirty(suiteRoot),
   },
+  release: readReleaseMetadata(),
   apps: config.apps.map((app) => {
     const appDir = appAbsolutePath(suiteRoot, app);
     return {
@@ -73,6 +75,14 @@ function listArtifacts(dir) {
     }
   }
   return results.sort();
+}
+
+function readReleaseMetadata() {
+  const path = join(suiteRoot, "suite/release.json");
+  if (!existsSync(path)) {
+    return null;
+  }
+  return readJsonFile(path);
 }
 
 function parseArgs(argv) {
