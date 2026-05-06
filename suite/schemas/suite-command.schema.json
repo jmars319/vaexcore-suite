@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vaexcore.local/suite/schemas/suite-command.schema.json",
+  "title": "vaexcore suite command",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "commandId",
+    "sourceApp",
+    "sourceAppName",
+    "targetApp",
+    "command",
+    "requestedAt",
+    "payload"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "commandId": { "type": "string", "minLength": 1 },
+    "sourceApp": { "type": "string", "minLength": 1 },
+    "sourceAppName": { "type": "string", "minLength": 1 },
+    "targetApp": { "type": "string", "minLength": 1 },
+    "command": { "type": "string", "minLength": 1 },
+    "requestedAt": { "type": "string", "format": "date-time" },
+    "payload": { "type": "object" }
+  }
+}

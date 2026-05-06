@@ -34,7 +34,16 @@ Clone or update the local app repos:
 ./scripts/smoke-all.sh
 ```
 
-Runs the focused integration smoke checks for Studio, Pulse, and Console.
+Validates the suite config/schema contract, then runs the focused integration
+smoke checks for Studio, Pulse, and Console.
+
+```bash
+./scripts/check-all.sh
+```
+
+Runs config validation, all smoke checks, and a macOS staging distribution build
+with release manifest validation. Set `VAEXCORE_SKIP_MAC_PACKAGE=1` to skip the
+packaging step.
 
 ```bash
 ./scripts/dev-all.sh
@@ -69,6 +78,16 @@ running:
 ```
 
 That verifier checks the installed app bundles and expected bundle identifiers.
+`install-apps.sh` also supports `--dest <dir>`, `--skip-build`,
+`--keep-artifacts`, `--no-verify`, and `--strict-heartbeat` for staging and CI
+flows.
+
+```bash
+./scripts/dist-mac-suite.sh
+```
+
+Stages the three macOS app bundles under `dist/mac-suite/`, packages each app as
+a zip with a SHA-256 file, and writes `dist/mac-suite/manifest.json`.
 
 ```powershell
 .\suite\windows\Build-VaexcoreSuite.ps1

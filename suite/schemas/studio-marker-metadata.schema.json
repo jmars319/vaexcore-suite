@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vaexcore.local/suite/schemas/studio-marker-metadata.schema.json",
+  "title": "vaexcore Studio marker metadata",
+  "type": "object",
+  "required": ["contract", "schemaVersion", "eventType", "source", "createdAt"],
+  "properties": {
+    "contract": { "type": "string", "const": "vaexcore.studio.marker.v1" },
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "eventType": { "type": "string", "minLength": 1 },
+    "source": {
+      "type": "object",
+      "required": ["appId", "appName", "workflow"],
+      "properties": {
+        "appId": { "type": "string", "minLength": 1 },
+        "appName": { "type": "string", "minLength": 1 },
+        "workflow": { "type": "string", "minLength": 1 }
+      }
+    },
+    "createdAt": { "type": "string", "format": "date-time" }
+  }
+}

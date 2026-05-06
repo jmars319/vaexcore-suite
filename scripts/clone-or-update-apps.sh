@@ -28,9 +28,8 @@ clone_or_update() {
   git clone --branch "$branch" "$repo" "$target"
 }
 
-clone_or_update "vaexcore studio" "https://github.com/jmars319/vaexcore-studio" "studio" "main"
-clone_or_update "vaexcore pulse" "https://github.com/jmars319/vaexcore-pulse" "pulse" "main"
-clone_or_update "vaexcore console" "https://github.com/jmars319/vaexcore-console" "console/VaexCore" "main"
+while IFS=$'\t' read -r name repo path branch; do
+  clone_or_update "$name" "$repo" "$path" "$branch"
+done < <(cd "$ROOT_DIR" && node scripts/print-suite-apps.mjs clone-tsv)
 
 echo "vaexcore app repos are current."
-

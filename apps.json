@@ -7,8 +7,16 @@
       "repo": "https://github.com/jmars319/vaexcore-studio",
       "path": "studio",
       "branch": "main",
+      "packageManager": "npm",
+      "dependencyInstallCommand": "npm install",
       "windowsDistCommand": "npm run app:dist:windows",
-      "macBuildCommand": "npm run tauri -w apps/desktop -- build --bundles app"
+      "windowsArtifactPatterns": [
+        "studio\\target\\release\\bundle\\nsis\\*.exe",
+        "studio\\target\\release\\bundle\\nsis\\*.msi"
+      ],
+      "macBuildCommand": "npm run tauri -w apps/desktop -- build --bundles app",
+      "macArtifactSearchDir": "target/release/bundle",
+      "artifactFolder": "studio"
     },
     {
       "id": "vaexcore-pulse",
@@ -16,8 +24,16 @@
       "repo": "https://github.com/jmars319/vaexcore-pulse",
       "path": "pulse",
       "branch": "main",
+      "packageManager": "pnpm",
+      "dependencyInstallCommand": "pnpm install",
       "windowsDistCommand": "pnpm app:dist:windows",
-      "macBuildCommand": "pnpm app:build"
+      "windowsArtifactPatterns": [
+        "pulse\\apps\\desktopapp\\src-tauri\\target\\release\\bundle\\nsis\\*.exe",
+        "pulse\\apps\\desktopapp\\src-tauri\\target\\release\\bundle\\nsis\\*.msi"
+      ],
+      "macBuildCommand": "pnpm app:build",
+      "macArtifactSearchDir": "release",
+      "artifactFolder": "pulse"
     },
     {
       "id": "vaexcore-console",
@@ -25,9 +41,16 @@
       "repo": "https://github.com/jmars319/vaexcore-console",
       "path": "console/VaexCore",
       "branch": "main",
+      "packageManager": "npm",
+      "dependencyInstallCommand": "npm install",
       "windowsDistCommand": "npm run app:dist:windows",
-      "macBuildCommand": "npm run app:build"
+      "windowsArtifactPatterns": [
+        "console\\VaexCore\\release\\*.exe",
+        "console\\VaexCore\\release\\*.blockmap"
+      ],
+      "macBuildCommand": "npm run app:build",
+      "macArtifactSearchDir": "release",
+      "artifactFolder": "console"
     }
   ]
 }
-

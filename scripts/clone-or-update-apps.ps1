@@ -50,9 +50,9 @@ function Clone-OrUpdate {
   Invoke-Checked $RootDir "git" @("clone", "--branch", $Branch, $Repo, $target)
 }
 
-Clone-OrUpdate "vaexcore studio" "https://github.com/jmars319/vaexcore-studio" "studio" "main"
-Clone-OrUpdate "vaexcore pulse" "https://github.com/jmars319/vaexcore-pulse" "pulse" "main"
-Clone-OrUpdate "vaexcore console" "https://github.com/jmars319/vaexcore-console" "console\VaexCore" "main"
+$AppsConfig = Get-Content -Raw (Join-Path $RootDir "apps.json") | ConvertFrom-Json
+foreach ($app in $AppsConfig.apps) {
+  Clone-OrUpdate $app.name $app.repo $app.path $app.branch
+}
 
 Write-Host "vaexcore app repos are current." -ForegroundColor Green
-

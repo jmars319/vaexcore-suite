@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vaexcore.local/suite/schemas/discovery-heartbeat.schema.json",
+  "title": "vaexcore suite discovery heartbeat",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "appId",
+    "appName",
+    "bundleIdentifier",
+    "version",
+    "pid",
+    "startedAt",
+    "updatedAt",
+    "apiUrl",
+    "healthUrl",
+    "capabilities",
+    "launchName"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "appId": { "type": "string", "minLength": 1 },
+    "appName": { "type": "string", "minLength": 1 },
+    "bundleIdentifier": { "type": "string", "minLength": 1 },
+    "version": { "type": "string", "minLength": 1 },
+    "pid": { "type": "integer", "minimum": 0 },
+    "startedAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" },
+    "apiUrl": { "type": ["string", "null"] },
+    "wsUrl": { "type": ["string", "null"] },
+    "healthUrl": { "type": ["string", "null"] },
+    "capabilities": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "launchName": { "type": "string", "minLength": 1 },
+    "suiteSessionId": { "type": ["string", "null"] },
+    "activity": { "type": ["string", "null"] },
+    "activityDetail": { "type": ["string", "null"] },
+    "localRuntime": {
+      "type": ["object", "null"],
+      "required": [
+        "contractVersion",
+        "mode",
+        "state",
+        "appStorageDir",
+        "suiteDir",
+        "secureStorage",
+        "secretStorageState",
+        "durableStorage",
+        "networkPolicy",
+        "dependencies"
+      ],
+      "properties": {
+        "contractVersion": { "type": "integer", "const": 1 },
+        "mode": { "type": "string", "minLength": 1 },
+        "state": { "type": "string", "minLength": 1 },
+        "appStorageDir": { "type": "string", "minLength": 1 },
+        "suiteDir": { "type": "string", "minLength": 1 },
+        "secureStorage": { "type": "string", "minLength": 1 },
+        "secretStorageState": { "type": "string", "minLength": 1 },
+        "durableStorage": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "networkPolicy": { "type": "string", "minLength": 1 },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "kind", "state", "detail"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "kind": { "type": "string", "minLength": 1 },
+              "state": { "type": "string", "minLength": 1 },
+              "detail": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

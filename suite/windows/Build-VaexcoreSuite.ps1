@@ -17,9 +17,8 @@ if (-not $ArtifactDir) {
   $ArtifactDir = Join-Path $RootDir "dist\windows-suite"
 }
 
-$StudioDir = Join-Path $RootDir "studio"
-$PulseDir = Join-Path $RootDir "pulse"
-$ConsoleDir = Join-Path $RootDir "console\VaexCore"
+$AppsConfig = Get-Content -Raw (Join-Path $RootDir "apps.json") | ConvertFrom-Json
+$AppConfigs = @($AppsConfig.apps)
 
 function Write-Step {
   param([string]$Message)
@@ -40,6 +39,24 @@ function Invoke-Checked {
     & $FilePath @Arguments
     if ($LASTEXITCODE -ne 0) {
       throw "$FilePath exited with code $LASTEXITCODE"
+    }
+  } finally {
+    Pop-Location
+  }
+}
+
+function Invoke-CommandLine {
+  param(
+    [string]$WorkingDirectory,
+    [string]$CommandLine
+  )
+
+  Write-Host "[$WorkingDirectory] $CommandLine"
+  Push-Location $WorkingDirectory
+  try {
+    & cmd.exe /d /s /c $CommandLine
+    if ($LASTEXITCODE -ne 0) {
+      throw "$CommandLine exited with code $LASTEXITCODE"
     }
   } finally {
     Pop-Location
@@ -140,7 +157,8 @@ function Ensure-Repositories {
     Clone-OrUpdateAppRepos
   }
 
-  foreach ($path in @($StudioDir, $PulseDir, $ConsoleDir)) {
+  foreach ($app in $AppConfigs) {
+    $path = Join-Path $RootDir $app.path
     if (-not (Test-Path $path)) {
       throw "Missing repo folder: $path"
     }
@@ -149,9 +167,9 @@ function Ensure-Repositories {
 
 function Clone-OrUpdateAppRepos {
   Write-Step "Cloning or updating app repositories"
-  Clone-OrUpdateApp "vaexcore studio" "https://github.com/jmars319/vaexcore-studio" "studio" "main"
-  Clone-OrUpdateApp "vaexcore pulse" "https://github.com/jmars319/vaexcore-pulse" "pulse" "main"
-  Clone-OrUpdateApp "vaexcore console" "https://github.com/jmars319/vaexcore-console" "console\VaexCore" "main"
+  foreach ($app in $AppConfigs) {
+    Clone-OrUpdateApp $app.name $app.repo $app.path $app.branch
+  }
 }
 
 function Clone-OrUpdateApp {
@@ -185,14 +203,10 @@ function Install-Dependencies {
     return
   }
 
-  Write-Step "Installing Studio dependencies"
-  Invoke-Checked $StudioDir "npm" @("install")
-
-  Write-Step "Installing Pulse dependencies"
-  Invoke-Checked $PulseDir "pnpm" @("install")
-
-  Write-Step "Installing Console dependencies"
-  Invoke-Checked $ConsoleDir "npm" @("install")
+  foreach ($app in $AppConfigs) {
+    Write-Step "Installing $($app.name) dependencies"
+    Invoke-CommandLine (Join-Path $RootDir $app.path) $app.dependencyInstallCommand
+  }
 }
 
 function Build-Installers {
@@ -200,14 +214,10 @@ function Build-Installers {
     return
   }
 
-  Write-Step "Building Studio Windows installer"
-  Invoke-Checked $StudioDir "npm" @("run", "app:dist:windows")
-
-  Write-Step "Building Pulse Windows installer"
-  Invoke-Checked $PulseDir "pnpm" @("app:dist:windows")
-
-  Write-Step "Building Console Windows installer and portable app"
-  Invoke-Checked $ConsoleDir "npm" @("run", "app:dist:windows")
+  foreach ($app in $AppConfigs) {
+    Write-Step "Building $($app.name) Windows artifacts"
+    Invoke-CommandLine (Join-Path $RootDir $app.path) $app.windowsDistCommand
+  }
 }
 
 function Copy-Artifacts {
@@ -216,18 +226,9 @@ function Copy-Artifacts {
   $scriptsDir = Join-Path $ArtifactDir "scripts"
   New-Item -ItemType Directory -Force -Path $installersDir, $scriptsDir | Out-Null
 
-  Copy-ProjectArtifacts "studio" @(
-    "studio\target\release\bundle\nsis\*.exe",
-    "studio\target\release\bundle\nsis\*.msi"
-  )
-  Copy-ProjectArtifacts "pulse" @(
-    "pulse\apps\desktopapp\src-tauri\target\release\bundle\nsis\*.exe",
-    "pulse\apps\desktopapp\src-tauri\target\release\bundle\nsis\*.msi"
-  )
-  Copy-ProjectArtifacts "console" @(
-    "console\VaexCore\release\*.exe",
-    "console\VaexCore\release\*.blockmap"
-  )
+  foreach ($app in $AppConfigs) {
+    Copy-ProjectArtifacts $app.artifactFolder @($app.windowsArtifactPatterns)
+  }
 
   Copy-Item -Force (Join-Path $ScriptDir "Launch-VaexcoreSuite.ps1") (Join-Path $scriptsDir "Launch-VaexcoreSuite.ps1")
   Copy-Item -Force (Join-Path $ScriptDir "Launch-VaexcoreApp.ps1") (Join-Path $scriptsDir "Launch-VaexcoreApp.ps1")
