@@ -60,3 +60,31 @@ When notarization is enabled, the script requires the signing identity, Apple
 ID, app-specific password, and 10-character Apple team ID. These checks only
 validate environment shape; Apple trust policy still needs a real notarization
 submission and first-launch check.
+
+## Windows Signing Plan
+
+Public Windows distribution is blocked until the shipped apps, installers,
+uninstallers, sidecars, and native modules are Authenticode-signed.
+
+The intended product brand is `tenra`. Until tenra is a legally validated DBA,
+the Windows publisher identity should be JAMARQ Digital LLC. After tenra exists
+as a validated DBA, future signing profiles can use tenra where the signing
+provider permits it. Keep the validated publisher identity as stable as possible
+once selected, because Windows reputation is tied to that identity and signed
+artifact history.
+
+Preferred route: Azure Artifact Signing for direct downloads, with Microsoft
+Store distribution still available later if store packaging becomes the better
+customer path. Azure Artifact Signing is the most versatile current option for
+these repos because it works with Electron, Tauri, GitHub Actions, Windows SDK
+tooling, and direct installer distribution without keeping a long-lived private
+key on a local build machine.
+
+Before enabling release signing:
+
+```powershell
+.\suite\windows\Test-VaexcoreWindowsSigning.ps1 -IncludeBuildArtifacts -FailOnUnsigned
+```
+
+This check is expected to fail for unsigned local builds. It should pass for a
+Windows release candidate before any artifact is described as public-ready.

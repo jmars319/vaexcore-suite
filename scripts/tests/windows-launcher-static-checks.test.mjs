@@ -5,8 +5,7 @@ import { findCmdLauncherIssues } from "../lib/windows-launcher-static-checks.mjs
 test("Windows launcher guard accepts suite cmd launchers", () => {
   const source = `@echo off
 setlocal
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Launch-VaexcoreApp.ps1" "vaexcore studio"
-if errorlevel 1 pause
+start "" "%SystemRoot%\\System32\\wscript.exe" "%~dp0Start-VaexcoreStudio.vbs"
 `;
 
   assert.deepEqual(findCmdLauncherIssues(source, "Start-VaexcoreStudio.cmd"), []);
@@ -19,5 +18,5 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File %~dp0Launch-VaexcoreSuit
 `, "Start-VaexcoreSuite.cmd");
 
   assert.equal(issues.some((issue) => issue.message.includes("must quote %~dp0 paths")), true);
-  assert.equal(issues.some((issue) => issue.message.includes("must pause")), true);
+  assert.equal(issues.some((issue) => issue.message.includes("must not show a PowerShell console")), true);
 });

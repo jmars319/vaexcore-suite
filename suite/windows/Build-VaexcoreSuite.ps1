@@ -1,10 +1,12 @@
 [CmdletBinding()]
 param(
   [switch]$InstallPrerequisites,
+  [switch]$PrerequisitesOnly,
   [switch]$SkipAppUpdate,
   [switch]$SkipDependencyInstall,
   [switch]$SkipBuild,
   [switch]$LaunchAfterBuild,
+  [string]$AppsRoot,
   [string]$ArtifactDir
 )
 
@@ -16,9 +18,13 @@ $RootDir = Resolve-Path (Join-Path $ScriptDir "..\..")
 if (-not $ArtifactDir) {
   $ArtifactDir = Join-Path $RootDir "dist\windows-suite"
 }
+if (-not $AppsRoot -and $env:VAEXCORE_APPS_ROOT) {
+  $AppsRoot = $env:VAEXCORE_APPS_ROOT
+}
 
 $AppsConfig = Get-Content -Raw (Join-Path $RootDir "apps.json") | ConvertFrom-Json
 $AppConfigs = @($AppsConfig.apps)
+$ResolvedAppDirs = @{}
 
 function Write-Step {
   param([string]$Message)
@@ -68,6 +74,120 @@ function Test-CommandAvailable {
   return [bool](Get-Command $Name -ErrorAction SilentlyContinue)
 }
 
+function Test-ExecutableAvailable {
+  param(
+    [string]$Name,
+    [string[]]$KnownPaths = @()
+  )
+
+  if (Test-CommandAvailable $Name) {
+    return $true
+  }
+
+  foreach ($path in $KnownPaths) {
+    if (Test-Path $path) {
+      return $true
+    }
+  }
+
+  return $false
+}
+
+function Get-WinGetFfmpegBinPaths {
+  $paths = New-Object System.Collections.Generic.List[string]
+  if ([string]::IsNullOrWhiteSpace($env:LOCALAPPDATA)) {
+    return $paths.ToArray()
+  }
+
+  $packagesRoot = Join-Path $env:LOCALAPPDATA "Microsoft\WinGet\Packages"
+  if (-not (Test-Path -LiteralPath $packagesRoot)) {
+    return $paths.ToArray()
+  }
+
+  $packages = Get-ChildItem -LiteralPath $packagesRoot -Directory -Filter "Gyan.FFmpeg_*" -ErrorAction SilentlyContinue
+  foreach ($package in $packages) {
+    $children = Get-ChildItem -LiteralPath $package.FullName -Directory -ErrorAction SilentlyContinue
+    foreach ($child in $children) {
+      $bin = Join-Path $child.FullName "bin"
+      if (Test-Path -LiteralPath $bin) {
+        $paths.Add($bin)
+      }
+    }
+  }
+
+  return $paths.ToArray()
+}
+
+function Get-FFmpegBinPaths {
+  $paths = New-Object System.Collections.Generic.List[string]
+  foreach ($entry in @(
+    "C:\ffmpeg\bin",
+    "C:\Program Files\ffmpeg\bin",
+    "C:\ProgramData\chocolatey\bin",
+    (Join-Path $env:USERPROFILE "scoop\shims"),
+    (Join-Path $env:LOCALAPPDATA "Microsoft\WinGet\Links")
+  )) {
+    if (-not [string]::IsNullOrWhiteSpace($entry)) {
+      $paths.Add($entry)
+    }
+  }
+
+  foreach ($entry in Get-WinGetFfmpegBinPaths) {
+    $paths.Add($entry)
+  }
+
+  return $paths.ToArray()
+}
+
+function Get-FFmpegKnownExecutablePaths {
+  param([string]$Name)
+
+  $paths = New-Object System.Collections.Generic.List[string]
+  $executable = if ($Name.EndsWith(".exe", [StringComparison]::OrdinalIgnoreCase)) {
+    $Name
+  } else {
+    "$Name.exe"
+  }
+
+  foreach ($bin in Get-FFmpegBinPaths) {
+    $paths.Add((Join-Path $bin $executable))
+  }
+
+  return $paths.ToArray()
+}
+
+function Update-ProcessPath {
+  $paths = New-Object System.Collections.Generic.List[string]
+  foreach ($scope in @("Machine", "User", "Process")) {
+    $value = [Environment]::GetEnvironmentVariable("Path", $scope)
+    if ([string]::IsNullOrWhiteSpace($value)) {
+      continue
+    }
+    foreach ($entry in $value.Split(";")) {
+      if (-not [string]::IsNullOrWhiteSpace($entry) -and -not $paths.Contains($entry)) {
+        $paths.Add($entry)
+      }
+    }
+  }
+
+  $extraPathEntries = @(
+    "C:\Program Files\nodejs",
+    (Join-Path $env:USERPROFILE ".cargo\bin"),
+    (Join-Path $env:LOCALAPPDATA "Programs\Python\Python312"),
+    (Join-Path $env:LOCALAPPDATA "Programs\Python\Python312\Scripts"),
+    "C:\ffmpeg\bin",
+    "C:\Program Files\ffmpeg\bin"
+  ) + (Get-FFmpegBinPaths)
+
+  foreach ($entry in $extraPathEntries) {
+    if ((Test-Path $entry) -and -not $paths.Contains($entry)) {
+      $paths.Add($entry)
+    }
+  }
+
+  $env:Path = $paths -join ";"
+}
+
 function Install-WithWinget {
   param(
     [string]$Id,
@@ -97,6 +217,8 @@ function Test-VisualCppTools {
 }
 
 function Ensure-Prerequisites {
+  Update-ProcessPath
+
   if ($InstallPrerequisites) {
     Write-Step "Installing common Windows prerequisites with winget"
     if (-not (Test-CommandAvailable "node")) {
@@ -108,7 +230,7 @@ function Ensure-Prerequisites {
     if (-not (Test-CommandAvailable "python")) {
       Install-WithWinget "Python.Python.3.12"
     }
-    if (-not (Test-CommandAvailable "ffmpeg")) {
+    if (-not (Test-ExecutableAvailable "ffmpeg" (Get-FFmpegKnownExecutablePaths "ffmpeg"))) {
       Install-WithWinget "Gyan.FFmpeg"
     }
     Install-WithWinget "Microsoft.EdgeWebView2Runtime"
@@ -119,14 +241,23 @@ function Ensure-Prerequisites {
         "--quiet --wait --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"
       )
     }
+
+    Update-ProcessPath
   }
 
+  Update-ProcessPath
   Write-Step "Checking prerequisites"
   $missing = New-Object System.Collections.Generic.List[string]
   foreach ($command in @("node", "npm", "cargo", "rustup", "python")) {
     if (-not (Test-CommandAvailable $command)) {
       $missing.Add($command)
     }
+  }
+  if (-not (Test-ExecutableAvailable "ffmpeg" (Get-FFmpegKnownExecutablePaths "ffmpeg"))) {
+    $missing.Add("ffmpeg")
+  }
+  if (-not (Test-ExecutableAvailable "ffprobe" (Get-FFmpegKnownExecutablePaths "ffprobe"))) {
+    $missing.Add("ffprobe")
   }
 
   if (-not (Test-VisualCppTools)) {
@@ -142,13 +273,18 @@ function Ensure-Prerequisites {
     throw "rustup target add x86_64-pc-windows-msvc failed"
   }
 
-  if (Test-CommandAvailable "corepack") {
-    & corepack enable
-    & corepack prepare pnpm@10.32.1 --activate
+  if (-not (Test-CommandAvailable "pnpm")) {
+    if (Test-CommandAvailable "corepack") {
+      & corepack prepare pnpm@10.32.1 --activate
+      if ($LASTEXITCODE -ne 0) {
+        Write-Warning "corepack could not activate pnpm; falling back to npm global install."
+      }
+      Update-ProcessPath
+    }
   }
 
   if (-not (Test-CommandAvailable "pnpm")) {
-    Invoke-Checked $RootDir "npm" @("install", "-g", "pnpm@10.32.1")
+    Invoke-CommandLine $RootDir "npm install -g pnpm@10.32.1"
   }
 }
 
@@ -158,7 +294,7 @@ function Ensure-Repositories {
   }
 
   foreach ($app in $AppConfigs) {
-    $path = Join-Path $RootDir $app.path
+    $path = Resolve-AppDirectory $app
     if (-not (Test-Path $path)) {
       throw "Missing repo folder: $path"
     }
@@ -168,34 +304,93 @@ function Ensure-Repositories {
 function Clone-OrUpdateAppRepos {
   Write-Step "Cloning or updating app repositories"
   foreach ($app in $AppConfigs) {
-    Clone-OrUpdateApp $app.name $app.repo $app.path $app.branch
+    Clone-OrUpdateApp $app
   }
 }
 
 function Clone-OrUpdateApp {
-  param(
-    [string]$Name,
-    [string]$Repo,
-    [string]$RelativePath,
-    [string]$Branch
-  )
+  param([object]$App)
 
-  $target = Join-Path $RootDir $RelativePath
+  $target = Resolve-AppDirectory $App
   if (Test-Path (Join-Path $target ".git")) {
-    Write-Host "Updating $Name..."
+    Write-Host "Updating $($App.name) at $target..."
     Invoke-Checked $target "git" @("fetch", "origin")
-    Invoke-Checked $target "git" @("checkout", $Branch)
-    Invoke-Checked $target "git" @("pull", "--ff-only", "origin", $Branch)
+    Invoke-Checked $target "git" @("checkout", $App.branch)
+    Invoke-Checked $target "git" @("pull", "--ff-only", "origin", $App.branch)
     return
   }
 
   if (Test-Path $target) {
-    throw "Cannot clone $Name; $target exists but is not a git repo."
+    throw "Cannot clone $($App.name); $target exists but is not a git repo."
   }
 
-  Write-Host "Cloning $Name..."
+  Write-Host "Cloning $($App.name) into $target..."
   New-Item -ItemType Directory -Force -Path (Split-Path -Parent $target) | Out-Null
-  Invoke-Checked $RootDir "git" @("clone", "--branch", $Branch, $Repo, $target)
+  Invoke-Checked $RootDir "git" @("clone", "--branch", $App.branch, $App.repo, $target)
+}
+
+function Resolve-AppDirectory {
+  param([object]$App)
+
+  $key = $App.id
+  if ($ResolvedAppDirs.ContainsKey($key)) {
+    return $ResolvedAppDirs[$key]
+  }
+
+  $candidates = New-Object System.Collections.Generic.List[string]
+  $configuredPath = Join-Path $RootDir $App.path
+  $repoFolder = Get-RepoFolderName $App
+
+  if ($AppsRoot) {
+    $appsRootPath = Resolve-RequiredDirectory $AppsRoot "AppsRoot"
+    $candidates.Add((Join-Path $appsRootPath $repoFolder))
+    $candidates.Add((Join-Path $appsRootPath $App.path))
+  }
+
+  $suiteParent = Split-Path -Parent $RootDir
+  $candidates.Add((Join-Path $suiteParent $repoFolder))
+  $candidates.Add($configuredPath)
+
+  foreach ($candidate in $candidates) {
+    if (Test-Path (Join-Path $candidate ".git")) {
+      $resolved = (Resolve-Path $candidate).Path
+      $ResolvedAppDirs[$key] = $resolved
+      Write-Host "Using $($App.name) repo: $resolved"
+      return $resolved
+    }
+  }
+
+  if (Test-Path $configuredPath) {
+    $resolved = (Resolve-Path $configuredPath).Path
+    $ResolvedAppDirs[$key] = $resolved
+    return $resolved
+  }
+
+  $ResolvedAppDirs[$key] = $configuredPath
+  return $configuredPath
+}
+
+function Resolve-RequiredDirectory {
+  param(
+    [string]$Path,
+    [string]$Label
+  )
+
+  if (-not (Test-Path $Path)) {
+    throw "$Label does not exist: $Path"
+  }
+
+  return (Resolve-Path $Path).Path
+}
+
+function Get-RepoFolderName {
+  param([object]$App)
+
+  $repoName = [System.IO.Path]::GetFileNameWithoutExtension(([string]$App.repo).TrimEnd("/"))
+  if ([string]::IsNullOrWhiteSpace($repoName)) {
+    return $App.id
+  }
+  return $repoName
 }
 
 function Install-Dependencies {
@@ -205,7 +400,7 @@ function Install-Dependencies {
 
   foreach ($app in $AppConfigs) {
     Write-Step "Installing $($app.name) dependencies"
-    Invoke-CommandLine (Join-Path $RootDir $app.path) $app.dependencyInstallCommand
+    Invoke-CommandLine (Resolve-AppDirectory $app) $app.dependencyInstallCommand
   }
 }
 
@@ -216,7 +411,7 @@ function Build-Installers {
 
   foreach ($app in $AppConfigs) {
     Write-Step "Building $($app.name) Windows artifacts"
-    Invoke-CommandLine (Join-Path $RootDir $app.path) $app.windowsDistCommand
+    Invoke-CommandLine (Resolve-AppDirectory $app) $app.windowsDistCommand
   }
 }
 
@@ -224,22 +419,30 @@ function Copy-Artifacts {
   Write-Step "Collecting Windows artifacts"
   $installersDir = Join-Path $ArtifactDir "installers"
   $scriptsDir = Join-Path $ArtifactDir "scripts"
-  New-Item -ItemType Directory -Force -Path $installersDir, $scriptsDir | Out-Null
+  $contractDir = Join-Path $ArtifactDir "suite"
+  New-Item -ItemType Directory -Force -Path $installersDir, $scriptsDir, $contractDir | Out-Null
 
   foreach ($app in $AppConfigs) {
-    Copy-ProjectArtifacts $app.artifactFolder @($app.windowsArtifactPatterns)
+    Copy-ProjectArtifacts $app $app.artifactFolder @($app.windowsArtifactPatterns)
   }
 
+  Copy-Item -Force (Join-Path $RootDir "suite\contract.json") (Join-Path $contractDir "contract.json")
   Copy-Item -Force (Join-Path $ScriptDir "Launch-VaexcoreSuite.ps1") (Join-Path $scriptsDir "Launch-VaexcoreSuite.ps1")
   Copy-Item -Force (Join-Path $ScriptDir "Launch-VaexcoreApp.ps1") (Join-Path $scriptsDir "Launch-VaexcoreApp.ps1")
   Copy-Item -Force (Join-Path $ScriptDir "Install-VaexcoreLaunchers.ps1") (Join-Path $scriptsDir "Install-VaexcoreLaunchers.ps1")
+  Copy-Item -Force (Join-Path $ScriptDir "Test-VaexcoreWindowsPrerequisites.ps1") (Join-Path $scriptsDir "Test-VaexcoreWindowsPrerequisites.ps1")
   Copy-Item -Force (Join-Path $ScriptDir "Test-VaexcoreWindowsSuite.ps1") (Join-Path $scriptsDir "Test-VaexcoreWindowsSuite.ps1")
   foreach ($launcher in @(
     "Install-VaexcoreLaunchers.cmd",
+    "Install-VaexcoreLaunchers.vbs",
     "Start-VaexcoreSuite.cmd",
+    "Start-VaexcoreSuite.vbs",
     "Start-VaexcoreStudio.cmd",
+    "Start-VaexcoreStudio.vbs",
     "Start-VaexcorePulse.cmd",
-    "Start-VaexcoreConsole.cmd"
+    "Start-VaexcorePulse.vbs",
+    "Start-VaexcoreConsole.cmd",
+    "Start-VaexcoreConsole.vbs"
   )) {
     Copy-Item -Force (Join-Path $ScriptDir $launcher) (Join-Path $scriptsDir $launcher)
   }
@@ -265,7 +468,8 @@ After installing, run:
 ```powershell
 .\scripts\Install-VaexcoreLaunchers.ps1
 .\scripts\Launch-VaexcoreSuite.ps1
-.\scripts\Start-VaexcoreSuite.cmd
+.\scripts\Start-VaexcoreSuite.vbs
+.\scripts\Test-VaexcoreWindowsPrerequisites.ps1
 .\scripts\Test-VaexcoreWindowsSuite.ps1
 ```
 
@@ -281,6 +485,7 @@ Suite discovery path:
 
 function Copy-ProjectArtifacts {
   param(
+    [object]$App,
     [string]$Name,
     [string[]]$Patterns
   )
@@ -290,7 +495,7 @@ function Copy-ProjectArtifacts {
 
   $files = @()
   foreach ($pattern in $Patterns) {
-    $found = Get-ChildItem -Path (Join-Path $RootDir $pattern) -File -ErrorAction SilentlyContinue
+    $found = Get-ChildItem -Path (Resolve-AppArtifactPattern $App $pattern) -File -ErrorAction SilentlyContinue
     if ($found) {
       $files += $found
     }
@@ -307,12 +512,44 @@ function Copy-ProjectArtifacts {
   }
 }
 
+function Resolve-AppArtifactPattern {
+  param(
+    [object]$App,
+    [string]$Pattern
+  )
+
+  $appDir = Resolve-AppDirectory $App
+  $configuredPrefix = ([string]$App.path).Replace("/", "\").TrimEnd("\")
+  $normalizedPattern = $Pattern.Replace("/", "\")
+  $relativePattern = $normalizedPattern
+
+  if ($normalizedPattern -eq $configuredPrefix) {
+    $relativePattern = ""
+  } elseif ($normalizedPattern.StartsWith("$configuredPrefix\")) {
+    $relativePattern = $normalizedPattern.Substring($configuredPrefix.Length + 1)
+  }
+
+  if ([string]::IsNullOrWhiteSpace($relativePattern)) {
+    return $appDir
+  }
+
+  return Join-Path $appDir $relativePattern
+}
+
 Ensure-Prerequisites
+if ($PrerequisitesOnly) {
+  Write-Host "Windows prerequisites are ready." -ForegroundColor Green
+  exit 0
+}
 Ensure-Repositories
 Install-Dependencies
 Build-Installers
 Copy-Artifacts
-Invoke-Checked $RootDir "node" @("scripts\dist-windows-manifest.mjs", "--artifact-dir", $ArtifactDir, "--arch", "x64")
+$manifestArgs = @("scripts\dist-windows-manifest.mjs", "--artifact-dir", $ArtifactDir, "--arch", "x64")
+foreach ($app in $AppConfigs) {
+  $manifestArgs += @("--app-dir", "$($app.id)=$(Resolve-AppDirectory $app)")
+}
+Invoke-Checked $RootDir "node" $manifestArgs
 Invoke-Checked $RootDir "node" @("scripts\validate-release-manifest.mjs", (Join-Path $ArtifactDir "manifest.json"))
 
 if ($LaunchAfterBuild) {

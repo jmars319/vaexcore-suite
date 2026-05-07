@@ -2,7 +2,8 @@
 param(
   [Parameter(Mandatory = $true, Position = 0)]
   [ValidateSet("vaexcore studio", "vaexcore pulse", "vaexcore console")]
-  [string]$AppName
+  [string]$AppName,
+  [switch]$ResolveOnly
 )
 
 $ErrorActionPreference = "Stop"
@@ -11,9 +12,25 @@ function Resolve-VaexcoreApp {
   param([string]$Name)
 
   $exeName = "$Name.exe"
-  $candidates = @()
+  $knownLocalAppDataPaths = @{
+    "vaexcore studio" = @(
+      "vaexcore studio\vaexcore-studio.exe",
+      "Programs\vaexcore studio\vaexcore studio.exe"
+    )
+    "vaexcore pulse" = @(
+      "vaexcore pulse\vaexcore-pulse-desktop.exe",
+      "Programs\vaexcore pulse\vaexcore pulse.exe"
+    )
+    "vaexcore console" = @(
+      "Programs\vaexcore console\vaexcore console.exe"
+    )
+  }
 
+  $candidates = @()
   if ($env:LOCALAPPDATA) {
+    foreach ($relativePath in @($knownLocalAppDataPaths[$Name])) {
+      $candidates += Join-Path $env:LOCALAPPDATA $relativePath
+    }
     $candidates += Join-Path $env:LOCALAPPDATA "Programs\$Name\$exeName"
   }
   if ($env:ProgramFiles) {
@@ -52,12 +69,35 @@ function Resolve-VaexcoreApp {
   return $null
 }
 
+function Start-VaexcoreProcess {
+  param([string]$Path)
+
+  $savedElectronRunAsNode = $env:ELECTRON_RUN_AS_NODE
+  $savedPackagedBootSmoke = $env:VAEXCORE_PACKAGED_BOOT_SMOKE
+  try {
+    Remove-Item Env:\ELECTRON_RUN_AS_NODE -ErrorAction SilentlyContinue
+    Remove-Item Env:\VAEXCORE_PACKAGED_BOOT_SMOKE -ErrorAction SilentlyContinue
+    Start-Process -FilePath $Path
+  } finally {
+    if ($null -ne $savedElectronRunAsNode) {
+      $env:ELECTRON_RUN_AS_NODE = $savedElectronRunAsNode
+    }
+    if ($null -ne $savedPackagedBootSmoke) {
+      $env:VAEXCORE_PACKAGED_BOOT_SMOKE = $savedPackagedBootSmoke
+    }
+  }
+}
+
 $appPath = Resolve-VaexcoreApp $AppName
 if (-not $appPath) {
   Write-Error "Could not find $AppName. Install it first, then run this launcher again."
   exit 1
 }
 
-Write-Host "Launching $AppName from $appPath"
-Start-Process -FilePath $appPath
+if ($ResolveOnly) {
+  Write-Host "Resolved $AppName to $appPath"
+  exit 0
+}
 
+Write-Host "Launching $AppName from $appPath"
+Start-VaexcoreProcess $appPath

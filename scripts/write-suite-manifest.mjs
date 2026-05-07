@@ -2,8 +2,6 @@
 import { existsSync, readdirSync, writeFileSync } from "node:fs";
 import { basename, join, relative, resolve } from "node:path";
 import {
-  appAbsolutePath,
-  appVersion,
   fileSize,
   gitDirty,
   gitSha,
@@ -19,6 +17,7 @@ const platform = args.platform ?? process.platform;
 const arch = args.arch ?? process.arch;
 const manifestPath = resolve(args.output ?? join(artifactDir, "manifest.json"));
 const config = loadSuiteConfig();
+const appDirs = parseAppDirs(args["app-dir"]);
 
 if (!existsSync(artifactDir)) {
   throw new Error(`Artifact directory does not exist: ${artifactDir}`);
@@ -37,11 +36,11 @@ const manifest = {
   },
   release: readReleaseMetadata(),
   apps: config.apps.map((app) => {
-    const appDir = appAbsolutePath(suiteRoot, app);
+    const appDir = appDirs.get(app.id) ?? resolve(suiteRoot, app.path);
     return {
       id: app.id,
       name: app.name,
-      version: appVersion(suiteRoot, app),
+      version: appVersionFromDirectory(appDir),
       gitSha: gitSha(appDir),
       dirty: gitDirty(appDir),
       bundleId: app.bundleId,
@@ -95,11 +94,51 @@ function parseArgs(argv) {
     const key = arg.slice(2);
     const value = argv[index + 1];
     if (!value || value.startsWith("--")) {
-      parsed[key] = true;
+      appendArg(parsed, key, true);
     } else {
-      parsed[key] = value;
+      appendArg(parsed, key, value);
       index += 1;
     }
   }
   return parsed;
+}
+
+function appVersionFromDirectory(appDir) {
+  const packagePath = join(appDir, "package.json");
+  if (!existsSync(packagePath)) {
+    return null;
+  }
+  return readJsonFile(packagePath).version ?? null;
+}
+
+function parseAppDirs(values) {
+  const appDirs = new Map();
+  for (const value of arrayValue(values)) {
+    if (typeof value !== "string") {
+      continue;
+    }
+    const separator = value.indexOf("=");
+    if (separator <= 0) {
+      throw new Error(`Invalid --app-dir value: ${value}`);
+    }
+    const id = value.slice(0, separator);
+    const path = value.slice(separator + 1);
+    appDirs.set(id, resolve(path));
+  }
+  return appDirs;
+}
+
+function appendArg(parsed, key, value) {
+  if (Object.hasOwn(parsed, key)) {
+    parsed[key] = [...arrayValue(parsed[key]), value];
+  } else {
+    parsed[key] = value;
+  }
+}
+
+function arrayValue(value) {
+  if (value === undefined) {
+    return [];
+  }
+  return Array.isArray(value) ? value : [value];
 }

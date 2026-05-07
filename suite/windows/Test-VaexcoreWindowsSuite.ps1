@@ -6,8 +6,28 @@ param(
 $ErrorActionPreference = "Stop"
 
 $ScriptDir = Split-Path -Parent $PSCommandPath
-$RootDir = Resolve-Path (Join-Path $ScriptDir "..\..")
-$Contract = Get-Content -Raw (Join-Path $RootDir "suite\contract.json") | ConvertFrom-Json
+$ArtifactRoot = Resolve-Path (Join-Path $ScriptDir "..")
+$RepoRoot = Resolve-Path (Join-Path $ScriptDir "..\..")
+$ContractPath = @(
+  (Join-Path $ArtifactRoot "suite\contract.json"),
+  (Join-Path $RepoRoot "suite\contract.json")
+) | Where-Object { Test-Path $_ } | Select-Object -First 1
+
+if ($ContractPath) {
+  $Contract = Get-Content -Raw $ContractPath | ConvertFrom-Json
+} else {
+  $ManifestPath = Join-Path $ArtifactRoot "manifest.json"
+  if (-not (Test-Path $ManifestPath)) {
+    throw "Could not find suite contract or manifest for heartbeat validation."
+  }
+  $Manifest = Get-Content -Raw $ManifestPath | ConvertFrom-Json
+  $Contract = [pscustomobject]@{
+    apps = @($Manifest.apps)
+    discovery = [pscustomobject]@{
+      heartbeatStaleMs = 30000
+    }
+  }
+}
 $SuiteDir = Join-Path $env:APPDATA "vaexcore\suite"
 $Expected = @($Contract.apps)
 $HeartbeatStaleMs = [int]$Contract.discovery.heartbeatStaleMs

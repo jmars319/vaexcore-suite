@@ -25,6 +25,9 @@ process.argv = [
   "--artifact-dir",
   artifactDir,
 ];
+for (const appDir of arrayValue(args["app-dir"])) {
+  process.argv.push("--app-dir", appDir);
+}
 await import("./write-suite-manifest.mjs");
 
 function listFiles(dir) {
@@ -50,11 +53,26 @@ function parseArgs(argv) {
     const key = arg.slice(2);
     const value = argv[index + 1];
     if (!value || value.startsWith("--")) {
-      parsed[key] = true;
+      appendArg(parsed, key, true);
     } else {
-      parsed[key] = value;
+      appendArg(parsed, key, value);
       index += 1;
     }
   }
   return parsed;
+}
+
+function appendArg(parsed, key, value) {
+  if (Object.hasOwn(parsed, key)) {
+    parsed[key] = [...arrayValue(parsed[key]), value];
+  } else {
+    parsed[key] = value;
+  }
+}
+
+function arrayValue(value) {
+  if (value === undefined) {
+    return [];
+  }
+  return Array.isArray(value) ? value : [value];
 }

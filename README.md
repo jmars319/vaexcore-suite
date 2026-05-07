@@ -203,14 +203,14 @@ here-strings so Markdown code fences do not get parsed as PowerShell escapes.
 The Windows kit also includes double-clickable launchers:
 
 ```text
-suite\windows\Install-VaexcoreLaunchers.cmd
-suite\windows\Start-VaexcoreSuite.cmd
-suite\windows\Start-VaexcoreStudio.cmd
-suite\windows\Start-VaexcorePulse.cmd
-suite\windows\Start-VaexcoreConsole.cmd
+suite\windows\Install-VaexcoreLaunchers.vbs
+suite\windows\Start-VaexcoreSuite.vbs
+suite\windows\Start-VaexcoreStudio.vbs
+suite\windows\Start-VaexcorePulse.vbs
+suite\windows\Start-VaexcoreConsole.vbs
 ```
 
-`Install-VaexcoreLaunchers.cmd` creates Start Menu shortcuts and a desktop
+`Install-VaexcoreLaunchers.vbs` creates Start Menu shortcuts and a desktop
 `vaexcore suite` shortcut using the suite logo.
 
 ## Suite Contract

@@ -19,18 +19,18 @@ export function findCmdLauncherIssues(source, filePath = "<inline>") {
     }
   }
 
-  const powershellInvocation = meaningfulLines.find((entry) =>
-    /^powershell\.exe\s+-NoProfile\s+-ExecutionPolicy\s+Bypass\s+-File\s+"%~dp0[^"]+\.ps1"(?:\s+"[^"]+")*\s*$/i.test(
+  const hiddenWscriptInvocation = meaningfulLines.find((entry) =>
+    /^start\s+""\s+"%SystemRoot%\\System32\\wscript\.exe"\s+"%~dp0[^"]+\.vbs"\s*$/i.test(
       entry.trimmed
     )
   );
-  if (!powershellInvocation) {
+  if (!hiddenWscriptInvocation) {
     issues.push(
       issue(
         filePath,
         1,
         1,
-        'launcher must invoke powershell.exe with -NoProfile -ExecutionPolicy Bypass -File "%~dp0...ps1"'
+        'launcher must invoke wscript.exe with a quoted "%~dp0...vbs" hidden launcher'
       )
     );
   }
@@ -41,8 +41,12 @@ export function findCmdLauncherIssues(source, filePath = "<inline>") {
     }
   }
 
-  if (!meaningfulLines.some((entry) => /^if\s+errorlevel\s+1\s+pause$/i.test(entry.trimmed))) {
-    issues.push(issue(filePath, 1, 1, "launcher must pause when the PowerShell script fails"));
+  if (
+    meaningfulLines.some((entry) =>
+      /^powershell\.exe\s+-NoProfile\s+-ExecutionPolicy\s+Bypass\s+-File\b/i.test(entry.trimmed)
+    )
+  ) {
+    issues.push(issue(filePath, 1, 1, "launcher must not show a PowerShell console window"));
   }
 
   return issues;
