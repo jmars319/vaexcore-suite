@@ -18,6 +18,7 @@ test("Suite CI keeps a native Windows launcher syntax job", () => {
   assert.match(source, /windows-launchers:/);
   assert.match(source, /runs-on:\s*windows-latest/);
   assert.match(source, /node scripts\/check-windows-suite-scripts\.mjs --require-pwsh/);
+  assert.match(source, /node --test scripts\/tests\/windows-manifest\.test\.mjs scripts\/tests\/windows-readme-template\.test\.mjs/);
 });
 
 test("Suite CI uploads integration smoke debug artifacts on failure", () => {

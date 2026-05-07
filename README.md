@@ -123,8 +123,32 @@ rebuilding the apps.
 node scripts/check-release-env.mjs
 ```
 
-Checks whether the current shell has the Apple notarization variables required
-when `VAEXCORE_MAC_NOTARIZE=1`.
+Checks whether the current shell has the Apple signing and notarization
+variables required when `VAEXCORE_MAC_SIGN=1` or `VAEXCORE_MAC_NOTARIZE=1`.
+
+```bash
+node scripts/check-automation-boundary.mjs
+```
+
+Audits `suite/automation-boundary.json`, which tracks intentional placeholders
+and manual validation blockers that automation should not treat as complete.
+
+```bash
+node scripts/release-readiness-report.mjs --artifact-dir dist/mac-suite --check
+```
+
+Combines git cleanliness, version alignment, artifact manifest validation,
+automation-boundary status, and GitHub CI status into one release-readiness
+report. Use `--skip-remote` for local-only checks and `--skip-git` for fixture
+tests.
+
+```bash
+node scripts/smoke-packaged-app-boot.mjs --apps-dir /Applications
+```
+
+Launches installed macOS app bundles against an isolated temporary `HOME` and
+verifies that Suite discovery heartbeat files are created without touching live
+Twitch, camera, microphone, or system-audio services.
 
 ```bash
 node scripts/bump-suite-version.mjs --version 0.1.1
@@ -209,6 +233,8 @@ node scripts/check-ci-status.mjs --require-green
 
 `release-preflight.mjs` verifies the Suite, Studio, Pulse, and Console repos are
 clean, on `main`, pushed to `origin/main`, and green in GitHub Actions.
+See `docs/RELEASE_READINESS.md` for the current split between code-verified
+gates and real-world validation blockers.
 
 ## Suite Discovery
 

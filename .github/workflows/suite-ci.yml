@@ -37,6 +37,7 @@ jobs:
 
           echo "::group::Validate release and Windows scripts"
           node scripts/check-release-env.mjs
+          node scripts/check-automation-boundary.mjs
           node scripts/check-windows-suite-scripts.mjs
           echo "::endgroup::"
 
@@ -124,3 +125,5 @@ jobs:
           node-version: "22"
       - name: Parse Windows suite scripts
         run: node scripts/check-windows-suite-scripts.mjs --require-pwsh
+      - name: Validate Windows artifact fixtures
+        run: node --test scripts/tests/windows-manifest.test.mjs scripts/tests/windows-readme-template.test.mjs

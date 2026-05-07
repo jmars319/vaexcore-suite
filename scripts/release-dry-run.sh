@@ -29,6 +29,7 @@ done
   node scripts/check-suite-repos.mjs
   node scripts/generate-suite-protocol.mjs --check
   node scripts/smoke-suite-contracts.mjs
+  node scripts/check-automation-boundary.mjs
   node scripts/check-windows-suite-scripts.mjs
 )
 
@@ -46,5 +47,6 @@ fi
 node "$ROOT_DIR/scripts/write-dry-run-artifacts.mjs" --artifact-dir "$ARTIFACT_DIR" --clean
 node "$ROOT_DIR/scripts/write-suite-manifest.mjs" --platform macOS --arch "$(uname -m)" --artifact-dir "$ARTIFACT_DIR"
 node "$ROOT_DIR/scripts/check-release-artifacts.mjs" --artifact-dir "$ARTIFACT_DIR" --manifest-only
+node "$ROOT_DIR/scripts/release-readiness-report.mjs" --skip-remote --artifact-dir "$ARTIFACT_DIR" --require-artifacts --check
 
 echo "vaexcore release dry-run passed"
