@@ -39,7 +39,8 @@ test("app CI workflows set timeouts and cache dependency stores", () => {
   assert.match(studio, /actions\/cache@v5/);
 
   assert.match(pulse, /timeout-minutes:\s*25/);
-  assert.match(pulse, /cache:\s*pnpm/);
+  assert.match(pulse, /pnpm store path --silent/);
+  assert.match(pulse, /pulse-pnpm/);
   assert.match(pulse, /rust-toolchain\.toml/);
   assert.match(pulse, /actions\/cache@v5/);
   assert.match(pulse, /pnpm run check:service-bundle/);
