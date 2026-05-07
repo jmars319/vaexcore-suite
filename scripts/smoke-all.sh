@@ -7,13 +7,12 @@ echo "== vaexcore suite config =="
 (cd "$ROOT_DIR" && node --test scripts/tests/*.test.mjs && node scripts/validate-suite-config.mjs --require-local-repos && node scripts/check-suite-repos.mjs && node scripts/generate-suite-protocol.mjs --check && node scripts/smoke-suite-contracts.mjs)
 
 echo "== vaexcore studio =="
-(cd "$ROOT_DIR/studio" && npm run prepare:sidecars && npm run check:sidecars && cargo fmt --all -- --check && cargo test -p vaexcore-api && cargo test -p vaexcore-studio-desktop && npm run typecheck)
+(cd "$ROOT_DIR/studio" && npm run ci)
 
 echo "== vaexcore pulse =="
-(cd "$ROOT_DIR/pulse" && pnpm run lint && pnpm --filter @vaexcore/pulse-desktopapp typecheck && pnpm run smoke:studio)
-(cd "$ROOT_DIR/pulse/apps/desktopapp/src-tauri" && cargo fmt --all -- --check && cargo test)
+(cd "$ROOT_DIR/pulse" && pnpm run ci)
 
 echo "== vaexcore console =="
-(cd "$ROOT_DIR/console/VaexCore" && npm run typecheck && npm run smoke:studio)
+(cd "$ROOT_DIR/console/VaexCore" && npm run ci)
 
 echo "vaexcore integration smoke passed"

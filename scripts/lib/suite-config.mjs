@@ -193,13 +193,45 @@ export function validateSuiteConfig(options = {}) {
     }
     requireString(app.branch, `${label}.branch`);
     requireString(app.packageManager, `${label}.packageManager`);
+    if (app.packageManager && !["npm", "pnpm"].includes(app.packageManager)) {
+      errors.push(`${label}.packageManager must be npm or pnpm.`);
+    }
     requireString(app.dependencyInstallCommand, `${label}.dependencyInstallCommand`);
+    if (
+      app.packageManager &&
+      app.dependencyInstallCommand &&
+      !dependencyInstallCommandMatchesPackageManager(app.dependencyInstallCommand, app.packageManager)
+    ) {
+      errors.push(`${label}.dependencyInstallCommand must use ${app.packageManager}.`);
+    }
     requireString(app.macBuildCommand, `${label}.macBuildCommand`);
     requireString(app.windowsDistCommand, `${label}.windowsDistCommand`);
     requireString(app.macArtifactSearchDir, `${label}.macArtifactSearchDir`);
+    if (app.macArtifactSearchDir && (isAbsolute(app.macArtifactSearchDir) || app.macArtifactSearchDir.split(/[\\/]+/).includes(".."))) {
+      errors.push(`${label}.macArtifactSearchDir must be a relative path inside the app repo.`);
+    }
     requireString(app.artifactFolder, `${label}.artifactFolder`);
+    if (app.artifactFolder && /[\\/]/.test(app.artifactFolder)) {
+      errors.push(`${label}.artifactFolder must be a single folder name.`);
+    }
     if (!Array.isArray(app.windowsArtifactPatterns) || app.windowsArtifactPatterns.length === 0) {
       errors.push(`${label}.windowsArtifactPatterns must be a non-empty array.`);
+    } else {
+      const appWindowsPath = app.path?.replaceAll("/", "\\");
+      for (const [index, pattern] of app.windowsArtifactPatterns.entries()) {
+        if (!requireString(pattern, `${label}.windowsArtifactPatterns[${index}]`)) {
+          continue;
+        }
+        if (isAbsolute(pattern) || pattern.split(/[\\/]+/).includes("..")) {
+          errors.push(`${label}.windowsArtifactPatterns[${index}] must be relative.`);
+        }
+        if (!pattern.includes("*")) {
+          errors.push(`${label}.windowsArtifactPatterns[${index}] must include a wildcard.`);
+        }
+        if (appWindowsPath && !pattern.startsWith(`${appWindowsPath}\\`)) {
+          errors.push(`${label}.windowsArtifactPatterns[${index}] must start with ${appWindowsPath}\\.`);
+        }
+      }
     }
 
     requireString(app.bundleId, `${label}.bundleId`);
@@ -249,13 +281,61 @@ export function validateSuiteConfig(options = {}) {
       if (!existsSync(join(appDir, ".git"))) {
         errors.push(`${label}.path does not point at a local git repo: ${appDir}`);
       }
-      if (!existsSync(appPackageJsonPath(root, app))) {
-        errors.push(`${label} is missing package.json at ${appPackageJsonPath(root, app)}.`);
+      const packagePath = appPackageJsonPath(root, app);
+      if (!existsSync(packagePath)) {
+        errors.push(`${label} is missing package.json at ${packagePath}.`);
+      } else {
+        const packageJson = readJsonFile(packagePath);
+        for (const [commandKey, command] of [
+          ["macBuildCommand", app.macBuildCommand],
+          ["windowsDistCommand", app.windowsDistCommand],
+        ]) {
+          const scriptName = packageScriptForCommand(command, app.packageManager);
+          if (!scriptName) {
+            errors.push(`${label}.${commandKey} must call a ${app.packageManager} package script.`);
+          } else if (!packageJson.scripts?.[scriptName]) {
+            errors.push(`${label}.${commandKey} references missing package script: ${scriptName}`);
+          }
+        }
       }
     }
   }
 
   return { errors, warnings };
+}
+
+function dependencyInstallCommandMatchesPackageManager(command, packageManager) {
+  const parts = shellWords(command);
+  if (packageManager === "npm") {
+    return parts[0] === "npm" && ["ci", "install"].includes(parts[1]);
+  }
+  if (packageManager === "pnpm") {
+    return parts[0] === "pnpm" && parts[1] === "install";
+  }
+  return false;
+}
+
+function packageScriptForCommand(command, packageManager) {
+  const parts = shellWords(command);
+  if (packageManager === "npm" && parts[0] === "npm" && parts[1] === "run" && parts[2]) {
+    return parts[2];
+  }
+  if (packageManager === "pnpm" && parts[0] === "pnpm") {
+    if (parts[1] === "run" && parts[2]) {
+      return parts[2];
+    }
+    if (parts[1] && !parts[1].startsWith("-") && parts[1] !== "install") {
+      return parts[1];
+    }
+  }
+  return null;
+}
+
+function shellWords(command) {
+  return String(command ?? "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
 }
 
 export function expandedMacDirectory(value) {

@@ -12,6 +12,7 @@ concurrency:
 jobs:
   contract:
     runs-on: macos-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -36,11 +37,12 @@ jobs:
 
           echo "::group::Validate release and Windows scripts"
           node scripts/check-release-env.mjs
-          node scripts/check-windows-suite-scripts.mjs --require-pwsh
+          node scripts/check-windows-suite-scripts.mjs
           echo "::endgroup::"
 
   release-fixtures:
     runs-on: macos-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -68,6 +70,7 @@ jobs:
 
   integration-smoke:
     runs-on: macos-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -94,3 +97,14 @@ jobs:
           echo "::group::Run integration smoke"
           ./scripts/smoke-all.sh
           echo "::endgroup::"
+
+  windows-launchers:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+      - name: Parse Windows suite scripts
+        run: node scripts/check-windows-suite-scripts.mjs --require-pwsh

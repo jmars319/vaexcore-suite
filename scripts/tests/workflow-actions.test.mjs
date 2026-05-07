@@ -12,6 +12,14 @@ test("checked-in workflows do not use deprecated actions v4 tags", () => {
   assert.deepEqual(offenders, []);
 });
 
+test("Suite CI keeps a native Windows launcher syntax job", () => {
+  const source = readFileSync(join(suiteRoot, ".github/workflows/suite-ci.yml"), "utf8");
+
+  assert.match(source, /windows-launchers:/);
+  assert.match(source, /runs-on:\s*windows-latest/);
+  assert.match(source, /node scripts\/check-windows-suite-scripts\.mjs --require-pwsh/);
+});
+
 function workflowRoots() {
   return [suiteRoot, ...loadSuiteConfig().apps.map((app) => join(suiteRoot, app.path))].filter((root) =>
     existsSync(join(root, ".github/workflows"))

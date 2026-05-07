@@ -28,6 +28,23 @@ test("reports duplicate health ports and missing contract entries", () => {
   assert.match(errors.join("\n"), /macBuildCommand/);
 });
 
+test("validates app package managers, artifact patterns, and referenced scripts", () => {
+  const root = writeSuiteFixture({
+    writeLocalRepos: true,
+    mutateApps(apps) {
+      apps.apps[0].windowsDistCommand = "npm run app:dist:missing";
+      apps.apps[0].windowsArtifactPatterns = ["outside\\release\\*.exe"];
+      apps.apps[1].dependencyInstallCommand = "npm install";
+      apps.apps[1].packageManager = "pnpm";
+    },
+  });
+
+  const { errors } = validateSuiteConfig({ root, requireLocalRepos: true });
+  assert.match(errors.join("\n"), /references missing package script: app:dist:missing/);
+  assert.match(errors.join("\n"), /windowsArtifactPatterns\[0\] must start with studio\\/);
+  assert.match(errors.join("\n"), /dependencyInstallCommand must use pnpm/);
+});
+
 function writeSuiteFixture(options = {}) {
   const root = mkdtempSync(join(tmpdir(), "vaexcore-suite-config-"));
   mkdirSync(join(root, "suite"), { recursive: true });
@@ -66,6 +83,24 @@ function writeSuiteFixture(options = {}) {
   options.mutateContract?.(contract);
   writeFileSync(join(root, "apps.json"), `${JSON.stringify(apps, null, 2)}\n`);
   writeFileSync(join(root, "suite/contract.json"), `${JSON.stringify(contract, null, 2)}\n`);
+  if (options.writeLocalRepos) {
+    for (const app of apps.apps) {
+      mkdirSync(join(root, app.path, ".git"), { recursive: true });
+      writeFileSync(
+        join(root, app.path, "package.json"),
+        `${JSON.stringify(
+          {
+            scripts: {
+              "app:build": "echo build",
+              "app:dist:windows": "echo dist",
+            },
+          },
+          null,
+          2
+        )}\n`
+      );
+    }
+  }
   return root;
 }
 

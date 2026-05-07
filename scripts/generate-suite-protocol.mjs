@@ -46,22 +46,52 @@ function renderTypeScriptProtocol() {
     healthEndpoint: app.healthEndpoint,
     capabilities: app.capabilities,
   }));
-  return `${generatedHeader("//")}
-export const SUITE_DISCOVERY_SCHEMA_VERSION = ${config.contract.discovery.schemaVersion} as const;
-export const PULSE_RECORDING_INTAKE_FILE = ${js(config.contract.handoffs.pulseRecordingIntakeFile)} as const;
+  return `${generatedHeader("//")}export const SUITE_DISCOVERY_SCHEMA_VERSION = ${config.contract.discovery.schemaVersion} as const;
+export const PULSE_RECORDING_INTAKE_FILE =
+  ${js(config.contract.handoffs.pulseRecordingIntakeFile)} as const;
 export const MARKER_CONTRACT_NAME = ${js(config.contract.markerContract.name)} as const;
 export const MARKER_CONTRACT_SCHEMA_VERSION = ${config.contract.markerContract.schemaVersion} as const;
-export const MARKER_REQUIRED_METADATA_FIELDS = ${js(config.contract.markerContract.requiredMetadataFields)} as const;
+export const MARKER_REQUIRED_METADATA_FIELDS = ${renderTsStringArray(config.contract.markerContract.requiredMetadataFields, 0)} as const;
 
-export const SUITE_APPS = ${js(apps)} as const;
-export const STUDIO_APP = SUITE_APPS.find((app) => app.id === "vaexcore-studio")!;
+export const SUITE_APPS = ${renderTsApps(apps)} as const;
+export const STUDIO_APP = SUITE_APPS.find(
+  (app) => app.id === "vaexcore-studio",
+)!;
 export const PULSE_APP = SUITE_APPS.find((app) => app.id === "vaexcore-pulse")!;
-export const CONSOLE_APP = SUITE_APPS.find((app) => app.id === "vaexcore-console")!;
+export const CONSOLE_APP = SUITE_APPS.find(
+  (app) => app.id === "vaexcore-console",
+)!;
 export const SUITE_APP_IDS = SUITE_APPS.map((app) => app.id);
 export const SUITE_LAUNCH_NAMES = SUITE_APPS.map((app) => app.launchName);
 
 export type SuiteAppId = (typeof SUITE_APPS)[number]["id"];
 `;
+}
+
+function renderTsApps(apps) {
+  return `[
+${apps.map(renderTsApp).join(",\n")},
+]`;
+}
+
+function renderTsApp(app) {
+  return `  {
+    id: ${js(app.id)},
+    name: ${js(app.name)},
+    bundleId: ${js(app.bundleId)},
+    launchName: ${js(app.launchName)},
+    discoveryFile: ${js(app.discoveryFile)},
+    healthEndpoint: ${js(app.healthEndpoint)},
+    capabilities: ${renderTsStringArray(app.capabilities, 4)},
+  }`;
+}
+
+function renderTsStringArray(values, indent) {
+  const spaces = " ".repeat(indent);
+  const valueSpaces = " ".repeat(indent + 2);
+  return `[
+${values.map((value) => `${valueSpaces}${js(value)},`).join("\n")}
+${spaces}]`;
 }
 
 function renderRustProtocol() {
