@@ -6,7 +6,7 @@ import { join } from "node:path";
 import test from "node:test";
 import { appAbsolutePath, appVersion, loadSuiteConfig, readJsonFile, sha256File, suiteRoot } from "../lib/suite-config.mjs";
 
-test("suite release compatibility matches app package and desktop Cargo versions", () => {
+test("suite release compatibility matches app package, desktop Cargo, and Tauri versions", () => {
   const config = loadSuiteConfig();
   const release = readJsonFile(join(suiteRoot, "suite/release.json"));
 
@@ -17,6 +17,11 @@ test("suite release compatibility matches app package and desktop Cargo versions
     const cargoVersion = readDesktopCargoVersion(app);
     if (cargoVersion) {
       assert.equal(release.compatibleApps[app.id], cargoVersion, `${app.id} desktop Cargo.toml`);
+    }
+
+    const tauriVersion = readDesktopTauriVersion(app);
+    if (tauriVersion) {
+      assert.equal(release.compatibleApps[app.id], tauriVersion, `${app.id} tauri.conf.json`);
     }
   }
 });
@@ -63,6 +68,20 @@ test("release manifest rejects unknown apps", () => {
   writeManifest(fixture);
 
   assert.match(validateManifest(fixture.manifestPath), /unknown app in manifest[\s\S]*compatibleApps includes unknown app/);
+});
+
+test("release artifact check can validate a manifest without inspecting macOS bundles", () => {
+  const fixture = writeManifestFixture();
+
+  execFileSync(
+    "node",
+    ["scripts/check-release-artifacts.mjs", "--artifact-dir", fixture.dir, "--manifest", fixture.manifestPath, "--manifest-only"],
+    {
+      cwd: suiteRoot,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+    },
+  );
 });
 
 function writeManifestFixture() {
@@ -140,6 +159,18 @@ function readDesktopCargoVersion(app) {
     if (!existsSync(path)) continue;
     const match = readFileSync(path, "utf8").match(/^version = "([^"]+)"/m);
     return match?.[1] ?? null;
+  }
+  return null;
+}
+
+function readDesktopTauriVersion(app) {
+  const candidates = [
+    join(appAbsolutePath(suiteRoot, app), "apps/desktop/src-tauri/tauri.conf.json"),
+    join(appAbsolutePath(suiteRoot, app), "apps/desktopapp/src-tauri/tauri.conf.json"),
+  ];
+  for (const path of candidates) {
+    if (!existsSync(path)) continue;
+    return readJsonFile(path).version ?? null;
   }
   return null;
 }

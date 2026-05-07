@@ -27,6 +27,10 @@ while [[ "$#" -gt 0 ]]; do
   esac
 done
 
+if [[ "$ARTIFACT_DIR" != /* ]]; then
+  ARTIFACT_DIR="${ROOT_DIR}/${ARTIFACT_DIR}"
+fi
+
 STAGING_DIR="${ARTIFACT_DIR}/staging/Applications"
 rm -rf "$ARTIFACT_DIR"
 mkdir -p "$STAGING_DIR"

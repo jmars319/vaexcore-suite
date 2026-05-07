@@ -79,24 +79,40 @@ jobs:
       - run: rustup default stable
       - run: corepack enable
       - name: Integration smoke
+        shell: bash
         run: |
-          echo "::group::Clone app repos"
-          ./scripts/clone-or-update-apps.sh
-          echo "::endgroup::"
+          set -o pipefail
+          LOG_DIR="${RUNNER_TEMP}/vaexcore-suite-ci"
+          mkdir -p "$LOG_DIR"
+          {
+            echo "::group::Clone app repos"
+            ./scripts/clone-or-update-apps.sh
+            echo "::endgroup::"
 
-          echo "::group::Validate app repo branches"
-          node scripts/check-suite-repos.mjs
-          echo "::endgroup::"
+            echo "::group::Validate app repo branches"
+            node scripts/check-suite-repos.mjs
+            echo "::endgroup::"
 
-          echo "::group::Install app dependencies"
-          (cd studio && npm ci)
-          (cd pulse && pnpm install --frozen-lockfile)
-          (cd console/VaexCore && npm ci)
-          echo "::endgroup::"
+            echo "::group::Install app dependencies"
+            (cd studio && npm ci)
+            (cd pulse && pnpm install --frozen-lockfile)
+            (cd console/VaexCore && npm ci)
+            echo "::endgroup::"
 
-          echo "::group::Run integration smoke"
-          ./scripts/smoke-all.sh
-          echo "::endgroup::"
+            echo "::group::Run integration smoke"
+            ./scripts/smoke-all.sh
+            echo "::endgroup::"
+          } 2>&1 | tee "$LOG_DIR/integration-smoke.log"
+      - uses: actions/upload-artifact@v5
+        if: failure()
+        with:
+          name: suite-integration-smoke-debug
+          path: |
+            ${{ runner.temp }}/vaexcore-suite-ci
+            dist/**/*.json
+            dist/**/*.log
+            pulse/apps/desktopapp/src-tauri/resources/pulse-service-bundle.json
+          if-no-files-found: ignore
 
   windows-launchers:
     runs-on: windows-latest

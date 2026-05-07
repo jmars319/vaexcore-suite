@@ -33,8 +33,9 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 if [[ "$MANIFEST_ONLY" -eq 1 ]]; then
+  node "$ROOT_DIR/scripts/write-dry-run-artifacts.mjs" --artifact-dir "$MAC_ARTIFACT_DIR" --clean
   node "$ROOT_DIR/scripts/write-suite-manifest.mjs" --platform macOS --arch "$(uname -m)" --artifact-dir "$MAC_ARTIFACT_DIR"
-  node "$ROOT_DIR/scripts/validate-release-manifest.mjs" "${MAC_ARTIFACT_DIR}/manifest.json"
+  node "$ROOT_DIR/scripts/check-release-artifacts.mjs" --artifact-dir "$MAC_ARTIFACT_DIR" --manifest-only
   echo "vaexcore manifest check passed"
   exit 0
 fi
