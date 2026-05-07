@@ -123,6 +123,10 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: "22"
+      - name: Clone app repos
+        run: .\scripts\clone-or-update-apps.ps1
+      - name: Validate app repo branches
+        run: node scripts/check-suite-repos.mjs
       - name: Parse Windows suite scripts
         run: node scripts/check-windows-suite-scripts.mjs --require-pwsh
       - name: Validate Windows artifact fixtures

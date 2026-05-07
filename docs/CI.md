@@ -6,7 +6,7 @@ Run these local commands before relying on the matching GitHub workflow.
 | --- | --- |
 | Suite CI / contract | `node --test scripts/tests/*.test.mjs && node scripts/validate-suite-config.mjs --require-local-repos && node scripts/check-suite-repos.mjs && node scripts/generate-suite-protocol.mjs --check && node scripts/smoke-suite-contracts.mjs && node scripts/check-automation-boundary.mjs && node scripts/check-windows-suite-scripts.mjs` |
 | Suite CI / integration-smoke | `./scripts/smoke-all.sh` |
-| Suite CI / windows-launchers | `node scripts/check-windows-suite-scripts.mjs --require-pwsh && node --test scripts/tests/windows-manifest.test.mjs scripts/tests/windows-readme-template.test.mjs` |
+| Suite CI / windows-launchers | `.\scripts\clone-or-update-apps.ps1; node scripts/check-suite-repos.mjs; node scripts/check-windows-suite-scripts.mjs --require-pwsh; node --test scripts/tests/windows-manifest.test.mjs scripts/tests/windows-readme-template.test.mjs` |
 | Suite release gate | `node scripts/release-preflight.mjs && node scripts/check-ci-status.mjs --require-green` |
 | Suite release dry-run | `./scripts/release-dry-run.sh --skip-remote` |
 | Packaged app boot smoke | `node scripts/smoke-packaged-app-boot.mjs --apps-dir dist/mac-suite-apps` |
