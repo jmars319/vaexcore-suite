@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { delimiter, join } from "node:path";
+import { delimiter, extname, join } from "node:path";
 import {
   findExpandableHereStringFenceIssues,
   findLiteralColonVariableIssues,
@@ -82,10 +82,16 @@ function listFiles(dir, extension) {
 }
 
 function findExecutable(name) {
+  const extensions =
+    process.platform === "win32" && extname(name) === ""
+      ? ["", ...(process.env.PATHEXT ?? ".EXE;.CMD;.BAT;.COM").split(";")]
+      : [""];
   for (const directory of (process.env.PATH ?? "").split(delimiter)) {
-    const path = join(directory, name);
-    if (existsSync(path)) {
-      return path;
+    for (const extension of extensions) {
+      const path = join(directory, `${name}${extension}`);
+      if (existsSync(path)) {
+        return path;
+      }
     }
   }
   return null;
