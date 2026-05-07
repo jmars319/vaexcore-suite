@@ -52,7 +52,7 @@ const manifest = {
     };
   }),
   artifacts: listArtifacts(artifactDir).map((path) => ({
-    file: relative(artifactDir, path),
+    file: relative(artifactDir, path).replaceAll("\\", "/"),
     name: basename(path),
     size: fileSize(path),
     sha256: sha256File(path),

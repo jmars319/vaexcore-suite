@@ -5,7 +5,10 @@ import test from "node:test";
 import { suiteRoot } from "../lib/suite-config.mjs";
 
 test("Windows suite README template uses a literal here-string with built timestamp replacement", () => {
-  const source = readFileSync(join(suiteRoot, "suite/windows/Build-VaexcoreSuite.ps1"), "utf8");
+  const source = readFileSync(join(suiteRoot, "suite/windows/Build-VaexcoreSuite.ps1"), "utf8").replaceAll(
+    "\r\n",
+    "\n",
+  );
 
   assert.match(source, /\$summary = @'\n# vaexcore Windows Suite/);
   assert.match(source, /Built: __BUILT_AT__/);
