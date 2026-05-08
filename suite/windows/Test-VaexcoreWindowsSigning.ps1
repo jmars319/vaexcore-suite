@@ -116,7 +116,7 @@ if ($IncludeBuildArtifacts) {
   Add-Target $targets "Studio release EXE" (Join-Path $AppsRoot "vaexcore-studio\target\release\vaexcore-studio.exe")
   Add-Target $targets "Studio media runner" (Join-Path $AppsRoot "vaexcore-studio\target\release\media-runner.exe")
   Add-ArtifactTargets $targets "Studio installer artifact" (Join-Path $AppsRoot "vaexcore-studio\target\release\bundle\nsis\*.exe")
-  Add-Target $targets "Pulse release EXE" (Join-Path $AppsRoot "vaexcore-pulse\apps\desktopapp\src-tauri\target\release\vaexcore-pulse-desktop.exe")
+  Add-Target $targets "Pulse release EXE" (Join-Path $AppsRoot "vaexcore-pulse\apps\desktopapp\src-tauri\target\release\vaexcore-pulse.exe")
   Add-ArtifactTargets $targets "Pulse installer artifact" (Join-Path $AppsRoot "vaexcore-pulse\apps\desktopapp\src-tauri\target\release\bundle\nsis\*.exe")
 }
 

@@ -127,7 +127,7 @@ function contractApp(id, shortName, bundleId, port) {
     name: `vaexcore ${shortName}`,
     bundleId,
     macOSInstallPath: `/Applications/vaexcore ${shortName}.app`,
-    windowsInstallPath: `%LOCALAPPDATA%\\Programs\\vaexcore ${shortName}\\vaexcore ${shortName}.exe`,
+    windowsInstallPath: `%LOCALAPPDATA%\\Programs\\vaexcore ${shortName}\\${id}.exe`,
     launchName: `vaexcore ${shortName}`,
     discoveryFile: `${id}.json`,
     healthEndpoint: `http://127.0.0.1:${port}/health`,

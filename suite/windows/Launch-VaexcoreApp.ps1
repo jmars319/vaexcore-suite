@@ -11,18 +11,18 @@ $ErrorActionPreference = "Stop"
 function Resolve-VaexcoreApp {
   param([string]$Name)
 
-  $exeName = "$Name.exe"
+  $exeName = Resolve-VaexcoreExecutableName $Name
   $knownLocalAppDataPaths = @{
     "vaexcore studio" = @(
       "vaexcore studio\vaexcore-studio.exe",
-      "Programs\vaexcore studio\vaexcore studio.exe"
+      "Programs\vaexcore studio\vaexcore-studio.exe"
     )
     "vaexcore pulse" = @(
-      "vaexcore pulse\vaexcore-pulse-desktop.exe",
-      "Programs\vaexcore pulse\vaexcore pulse.exe"
+      "vaexcore pulse\vaexcore-pulse.exe",
+      "Programs\vaexcore pulse\vaexcore-pulse.exe"
     )
     "vaexcore console" = @(
-      "Programs\vaexcore console\vaexcore console.exe"
+      "Programs\vaexcore console\vaexcore-console.exe"
     )
   }
 
@@ -67,6 +67,17 @@ function Resolve-VaexcoreApp {
   }
 
   return $null
+}
+
+function Resolve-VaexcoreExecutableName {
+  param([string]$Name)
+
+  switch ($Name) {
+    "vaexcore studio" { return "vaexcore-studio.exe" }
+    "vaexcore pulse" { return "vaexcore-pulse.exe" }
+    "vaexcore console" { return "vaexcore-console.exe" }
+    default { return "$Name.exe" }
+  }
 }
 
 function Start-VaexcoreProcess {

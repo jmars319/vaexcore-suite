@@ -246,6 +246,10 @@ export function validateSuiteConfig(options = {}) {
     if (app.windowsInstallPath && !app.windowsInstallPath.toLowerCase().endsWith(".exe")) {
       errors.push(`${label}.windowsInstallPath must point at an .exe.`);
     }
+    const windowsExecutableName = app.windowsInstallPath?.split(/[\\/]/).pop();
+    if (windowsExecutableName && windowsExecutableName !== `${app.id}.exe`) {
+      errors.push(`${label}.windowsInstallPath executable must be ${app.id}.exe.`);
+    }
     requireString(app.launchName, `${label}.launchName`);
     if (app.launchName && app.macOSInstallPath && basename(app.macOSInstallPath) !== `${app.launchName}.app`) {
       errors.push(`${label}.macOSInstallPath basename must match launchName.`);
