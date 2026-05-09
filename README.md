@@ -28,6 +28,12 @@ pulse            https://github.com/jmars319/vaexcore-pulse
 console/VaexCore https://github.com/jmars319/vaexcore-console
 ```
 
+## Service Repositories
+
+```text
+relay            https://github.com/jmars319/vaexcore-relay
+```
+
 ## Architecture
 
 ```text
@@ -70,6 +76,7 @@ Windows equivalents are available where documented.
 ## Related Documentation
 
 - [Suite Operations](docs/SUITE_OPERATIONS.md)
+- [Bot Completion Runbook](docs/BOT_COMPLETION_RUNBOOK.md)
 - [CI](docs/CI.md)
 - [Release Readiness](docs/RELEASE_READINESS.md)
 - [Windows Suite](suite/windows/README.md)

@@ -8,7 +8,7 @@ vaexcore apps and services:
 - `studio`: local recording, streaming, and connected-app control layer
 - `pulse`: local video review and highlight selection app
 - `console/VaexCore`: Twitch operations bot and chat marker source
-- `relay`: Cloudflare Worker service for Twitch chatbot identity and webhook transport
+- `relay`: Cloudflare Worker service for Twitch chatbot identity, Discord interactions, and webhook transport
 
 The app source stays in its own repos. This suite repo owns launchers, shared
 protocol docs, build/install scripts, and release packaging helpers.

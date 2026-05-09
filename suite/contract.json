@@ -86,6 +86,9 @@
         "twitch.chatbot-identity",
         "twitch.eventsub.webhooks",
         "twitch.app-token-chat",
+        "discord.interactions-webhook",
+        "discord.suggestion-queue",
+        "discord.command-registration",
         "console.relay-transport"
       ]
     }
