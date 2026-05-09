@@ -4,6 +4,7 @@
 /studio/
 /pulse/
 /console/
+/relay/
 
 # Local data and generated outputs.
 /.local/

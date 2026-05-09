@@ -52,5 +52,19 @@
       "macArtifactSearchDir": "release",
       "artifactFolder": "console"
     }
+  ],
+  "services": [
+    {
+      "id": "vaexcore-relay",
+      "name": "vaexcore relay",
+      "repo": "https://github.com/jmars319/vaexcore-relay",
+      "path": "relay",
+      "branch": "main",
+      "packageManager": "npm",
+      "dependencyInstallCommand": "npm install",
+      "checkCommand": "npm run ci",
+      "deployment": "cloudflare-worker",
+      "remoteOptional": true
+    }
   ]
 }

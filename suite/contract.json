@@ -74,5 +74,20 @@
         "suite.launcher"
       ]
     }
+  ],
+  "services": [
+    {
+      "id": "vaexcore-relay",
+      "name": "vaexcore relay",
+      "deployment": "cloudflare-worker",
+      "discoveryFile": "vaexcore-relay.json",
+      "capabilities": [
+        "relay.api",
+        "twitch.chatbot-identity",
+        "twitch.eventsub.webhooks",
+        "twitch.app-token-chat",
+        "console.relay-transport"
+      ]
+    }
   ]
 }

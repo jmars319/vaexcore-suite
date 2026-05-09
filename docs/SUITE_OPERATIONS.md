@@ -2,12 +2,13 @@
 
 This document preserves the script-heavy suite operations reference that previously lived in the root README. The root README now provides the high-level project presentation layer.
 
-This repo is the orchestration and distribution layer for the three independent
-vaexcore apps:
+This repo is the orchestration and distribution layer for the independent
+vaexcore apps and services:
 
 - `studio`: local recording, streaming, and connected-app control layer
 - `pulse`: local video review and highlight selection app
 - `console/VaexCore`: Twitch operations bot and chat marker source
+- `relay`: Cloudflare Worker service for Twitch chatbot identity and webhook transport
 
 The app source stays in its own repos. This suite repo owns launchers, shared
 protocol docs, build/install scripts, and release packaging helpers.
@@ -18,16 +19,19 @@ protocol docs, build/install scripts, and release packaging helpers.
 studio          https://github.com/jmars319/vaexcore-studio
 pulse           https://github.com/jmars319/vaexcore-pulse
 console/VaexCore https://github.com/jmars319/vaexcore-console
+relay          https://github.com/jmars319/vaexcore-relay
 ```
 
 Clone or update the local app repos:
 
 ```bash
 ./scripts/clone-or-update-apps.sh
+./scripts/clone-or-update-apps.sh --include-services
 ```
 
 ```powershell
 .\scripts\clone-or-update-apps.ps1
+.\scripts\clone-or-update-apps.ps1 -IncludeServices
 ```
 
 ## Scripts

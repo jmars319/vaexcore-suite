@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param(
-  [string]$AppsRoot
+  [string]$AppsRoot,
+  [switch]$IncludeServices
 )
 
 $ErrorActionPreference = "Stop"
@@ -36,6 +37,23 @@ function Clone-OrUpdate {
   $target = Resolve-AppDirectory $App
   if (Test-Path (Join-Path $target ".git")) {
     Write-Host "Updating $($App.name) at $target..."
+    Push-Location $target
+    try {
+      $origin = & git remote get-url origin 2>$null
+      if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($origin)) {
+        if ((Has-Property $App "remoteOptional") -and $App.remoteOptional) {
+          Write-Host "Skipping $($App.name) fetch; origin is not configured yet."
+          & git checkout $App.branch
+          if ($LASTEXITCODE -ne 0) {
+            throw "git checkout exited with code $LASTEXITCODE"
+          }
+          return
+        }
+        throw "Cannot update $($App.name); origin is not configured."
+      }
+    } finally {
+      Pop-Location
+    }
     Invoke-Checked $target "git" @("fetch", "origin")
     Invoke-Checked $target "git" @("checkout", $App.branch)
     Invoke-Checked $target "git" @("pull", "--ff-only", "origin", $App.branch)
@@ -105,6 +123,15 @@ function Resolve-RequiredDirectory {
   return (Resolve-Path $Path).Path
 }
 
+function Has-Property {
+  param(
+    [object]$Value,
+    [string]$Name
+  )
+
+  return $Value.PSObject.Properties.Name -contains $Name
+}
+
 function Get-RepoFolderName {
   param([object]$App)
 
@@ -118,6 +145,11 @@ function Get-RepoFolderName {
 $AppsConfig = Get-Content -Raw (Join-Path $RootDir "apps.json") | ConvertFrom-Json
 foreach ($app in $AppsConfig.apps) {
   Clone-OrUpdate $app
+}
+if ($IncludeServices -and $AppsConfig.PSObject.Properties.Name -contains "services") {
+  foreach ($service in $AppsConfig.services) {
+    Clone-OrUpdate $service
+  }
 }
 
 Write-Host "vaexcore app repos are current." -ForegroundColor Green
