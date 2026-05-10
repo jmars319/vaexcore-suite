@@ -8,6 +8,21 @@ This runbook covers the live steps that remain after the code-complete bot pass.
 - Relay owns public webhooks, Twitch app-token chatbot identity, Twitch EventSub chat intake, Discord interaction verification, Discord slash command registration, and queue APIs.
 - Suite tracks Relay as a service repo for clone/check purposes only.
 
+## Live Deployment Checkpoint
+
+As of 2026-05-10:
+
+- Relay deploy path is the existing `relay/` Worker project, not a new app.
+- Production Worker custom domain is `https://relay.vaexil.tv`.
+- Production D1 database is `vaexcore-relay`.
+- `wrangler.jsonc` is configured with `PUBLIC_BASE_URL=https://relay.vaexil.tv`, `TWITCH_REDIRECT_URI=https://relay.vaexil.tv/oauth/twitch/callback`, D1 binding `DB`, and `workers_dev=false`.
+- The first production Worker deployment and D1 migrations have been applied.
+- Console has been paired to Relay locally.
+- Twitch/client relay base secrets are set in Cloudflare Worker secrets.
+- Discord Worker secrets are still pending: `DISCORD_BOT_TOKEN`, `DISCORD_PUBLIC_KEY`, `DISCORD_APPLICATION_ID`, plus `DISCORD_GUILD_ID` for the live server.
+
+Do not create a second Relay service. Continue live integration from this deployed Worker and D1 database.
+
 ## Relay Deployment
 
 1. Clone or update services:
