@@ -10,7 +10,7 @@ test("generated TypeScript and Rust suite protocols match the contract", () => {
     join(suiteRoot, "suite/generated/suite-protocol.ts"),
     join(suiteRoot, "studio/apps/desktop/src-tauri/src/suite_protocol.rs"),
     join(suiteRoot, "pulse/apps/desktopapp/src-tauri/src/suite_protocol.rs"),
-    join(suiteRoot, "console/VaexCore/desktop/shared/src/suiteProtocol.ts"),
+    join(suiteRoot, "console/desktop/shared/src/suiteProtocol.ts"),
   ];
   const contents = generatedFiles.map((path) => [path, readFileSync(path, "utf8")]);
 

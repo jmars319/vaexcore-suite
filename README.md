@@ -25,7 +25,7 @@ The app source stays in the app repos. This repo owns suite-level integration an
 ```text
 studio           https://github.com/jmars319/vaexcore-studio
 pulse            https://github.com/jmars319/vaexcore-pulse
-console/VaexCore https://github.com/jmars319/vaexcore-console
+console https://github.com/jmars319/vaexcore-console
 ```
 
 ## Service Repositories

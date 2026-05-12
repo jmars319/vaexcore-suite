@@ -7,7 +7,7 @@ const checkOnly = process.argv.includes("--check");
 const config = loadSuiteConfig();
 const files = new Map([
   [join(suiteRoot, "suite/generated/suite-protocol.ts"), renderTypeScriptProtocol()],
-  [join(suiteRoot, "console/VaexCore/desktop/shared/src/suiteProtocol.ts"), renderTypeScriptProtocol()],
+  [join(suiteRoot, "console/desktop/shared/src/suiteProtocol.ts"), renderTypeScriptProtocol()],
   [join(suiteRoot, "studio/apps/desktop/src-tauri/src/suite_protocol.rs"), renderRustProtocol()],
   [join(suiteRoot, "pulse/apps/desktopapp/src-tauri/src/suite_protocol.rs"), renderRustProtocol()],
 ]);

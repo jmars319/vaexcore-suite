@@ -13,6 +13,6 @@ echo "== vaexcore pulse =="
 (cd "$ROOT_DIR/pulse" && pnpm run ci)
 
 echo "== vaexcore console =="
-(cd "$ROOT_DIR/console/VaexCore" && npm run ci)
+(cd "$ROOT_DIR/console" && npm run ci)
 
 echo "vaexcore integration smoke passed"

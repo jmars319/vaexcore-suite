@@ -131,11 +131,11 @@ Run these before live credential validation:
 
 ```bash
 (cd relay && npm run ci)
-(cd console/VaexCore && npm run lint)
-(cd console/VaexCore && npm run check:scopes)
-(cd console/VaexCore && npm run typecheck)
-(cd console/VaexCore && npm run build)
-(cd console/VaexCore && npm run smoke:ci)
+(cd console && npm run lint)
+(cd console && npm run check:scopes)
+(cd console && npm run typecheck)
+(cd console && npm run build)
+(cd console && npm run smoke:ci)
 node scripts/validate-suite-config.mjs --require-local-repos
 node scripts/check-suite-repos.mjs
 node scripts/check-suite-services.mjs

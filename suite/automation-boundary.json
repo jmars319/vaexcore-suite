@@ -81,7 +81,7 @@
       "nextValidation": "Run Console setup with real Twitch credentials, verify required scopes, send a test chat message, and confirm stream-key access.",
       "evidence": [
         {
-          "path": "console/VaexCore/scripts/check-twitch-scopes.mjs",
+          "path": "console/scripts/check-twitch-scopes.mjs",
           "contains": "channel:read:stream_key"
         }
       ]

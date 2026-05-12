@@ -35,7 +35,7 @@ test("Suite CI uploads integration smoke debug artifacts on failure", () => {
 test("app CI workflows set timeouts and cache dependency stores", () => {
   const studio = readFileSync(join(suiteRoot, "studio/.github/workflows/ci.yml"), "utf8");
   const pulse = readFileSync(join(suiteRoot, "pulse/.github/workflows/ci.yml"), "utf8");
-  const console = readFileSync(join(suiteRoot, "console/VaexCore/.github/workflows/ci.yml"), "utf8");
+  const console = readFileSync(join(suiteRoot, "console/.github/workflows/ci.yml"), "utf8");
 
   assert.match(studio, /timeout-minutes:\s*25/);
   assert.match(studio, /rust-toolchain\.toml/);

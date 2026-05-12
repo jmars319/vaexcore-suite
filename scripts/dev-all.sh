@@ -15,6 +15,6 @@ echo "- console setup:      http://127.0.0.1:3434"
 
 (cd "$ROOT_DIR/studio" && npm run dev) &
 (cd "$ROOT_DIR/pulse" && pnpm run dev:desktop) &
-(cd "$ROOT_DIR/console/VaexCore" && npm run setup) &
+(cd "$ROOT_DIR/console" && npm run setup) &
 
 wait

@@ -39,14 +39,14 @@
       "id": "vaexcore-console",
       "name": "vaexcore console",
       "repo": "https://github.com/jmars319/vaexcore-console",
-      "path": "console/VaexCore",
+      "path": "console",
       "branch": "main",
       "packageManager": "npm",
       "dependencyInstallCommand": "npm install",
       "windowsDistCommand": "npm run app:dist:windows",
       "windowsArtifactPatterns": [
-        "console\\VaexCore\\release\\*.exe",
-        "console\\VaexCore\\release\\*.blockmap"
+        "console\\release\\*.exe",
+        "console\\release\\*.blockmap"
       ],
       "macBuildCommand": "npm run app:build",
       "macArtifactSearchDir": "release",
