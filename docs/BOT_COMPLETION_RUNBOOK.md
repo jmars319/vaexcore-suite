@@ -144,6 +144,14 @@ node scripts/generate-suite-protocol.mjs --check
 node scripts/smoke-suite-contracts.mjs
 ```
 
+For the code-only pre-credential gate, run the suite aggregator:
+
+```bash
+node scripts/check-bot-readiness.mjs
+```
+
+It runs Console bot readiness, Relay CI, suite repo/service/config checks, writes `.local/bot-readiness-report.json`, and reports credential/live TODOs without requiring Twitch, Discord, Cloudflare, D1, or DNS mutations.
+
 ## Completion Criteria
 
 - Relay deploys with current D1 migrations applied.

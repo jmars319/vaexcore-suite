@@ -10,4 +10,6 @@ test("smoke-all runs CI-equivalent app checks from the expected directories", ()
   assert.match(source, /\(cd "\$ROOT_DIR\/studio" && npm run ci\)/);
   assert.match(source, /\(cd "\$ROOT_DIR\/pulse" && pnpm run ci\)/);
   assert.match(source, /\(cd "\$ROOT_DIR\/console" && npm run ci\)/);
+  assert.match(source, /node scripts\/check-suite-services\.mjs/);
+  assert.match(source, /node scripts\/check-bot-readiness\.mjs/);
 });
