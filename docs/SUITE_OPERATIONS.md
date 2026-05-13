@@ -149,6 +149,17 @@ report. Use `--skip-remote` for local-only checks and `--skip-git` for fixture
 tests.
 
 ```bash
+node scripts/check-go-live-readiness.mjs --json
+node scripts/check-go-live-readiness.mjs --format markdown
+```
+
+Builds a local, no-deploy go-live checklist. It reads Studio output readiness
+from `/scene-runtime/readiness-report`, Console bot readiness from
+`/api/bot/completion`, and Relay service metadata from the suite service
+contract. Apps that are not running become warnings, while live Twitch,
+Discord, and Windows hardware validation remain explicit manual blockers.
+
+```bash
 node scripts/smoke-packaged-app-boot.mjs --apps-dir /Applications
 ```
 
