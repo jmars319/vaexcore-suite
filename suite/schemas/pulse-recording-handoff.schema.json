@@ -20,6 +20,27 @@
     "sourceAppName": { "type": "string", "minLength": 1 },
     "targetApp": { "type": "string", "const": "vaexcore-pulse" },
     "requestedAt": { "type": "string", "format": "date-time" },
+    "outputReady": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["ready", "state", "detail", "blockers", "warnings"],
+      "properties": {
+        "ready": { "type": "boolean" },
+        "state": {
+          "type": "string",
+          "enum": ["ready", "degraded", "blocked", "not_applicable"]
+        },
+        "detail": { "type": "string", "minLength": 1 },
+        "activeSceneId": { "type": ["string", "null"] },
+        "activeSceneName": { "type": ["string", "null"] },
+        "programPreviewFrameReady": { "type": ["boolean", "null"] },
+        "compositorRenderPlanReady": { "type": ["boolean", "null"] },
+        "outputPreflightReady": { "type": ["boolean", "null"] },
+        "mediaPipelineReady": { "type": ["boolean", "null"] },
+        "blockers": { "type": "array", "items": { "type": "string" } },
+        "warnings": { "type": "array", "items": { "type": "string" } }
+      }
+    },
     "recording": {
       "type": "object",
       "additionalProperties": false,

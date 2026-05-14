@@ -88,6 +88,27 @@ Suite discovery on Windows is shared through:
 %APPDATA%\vaexcore\suite
 ```
 
+## Handoff Pack
+
+The machine-readable validation plan lives at:
+
+```text
+suite\windows\windows-validation-plan.json
+```
+
+Mac-side automation can report this handoff pack as code-ready, but it must not
+mark Windows hardware validation complete. Archive the JSON plan with the
+release-readiness JSON and Markdown reports, then attach Windows evidence for
+capture devices, encoders, installers, launchers, signing, Twitch, and Discord
+as each manual stage is completed.
+
+Generate local release-readiness reports with:
+
+```powershell
+node scripts\release-readiness-report.mjs --skip-git --skip-remote --json --output .local\release-readiness.json
+node scripts\release-readiness-report.mjs --skip-git --skip-remote --format markdown --output .local\release-readiness.md
+```
+
 ## Full Twitch Test Sequence
 
 Before testing Twitch, run the Windows prerequisite check:

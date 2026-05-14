@@ -81,6 +81,19 @@ validate("pulse handoff", schemas.handoff, {
     profileName: "1080p",
     stoppedAt: now,
   },
+  outputReady: {
+    ready: true,
+    state: "ready",
+    detail: "Scene output handoff is ready for Pulse intake.",
+    activeSceneId: "scene-main",
+    activeSceneName: "Main scene",
+    programPreviewFrameReady: true,
+    compositorRenderPlanReady: true,
+    outputPreflightReady: true,
+    mediaPipelineReady: true,
+    blockers: [],
+    warnings: [],
+  },
 });
 
 const markerMetadata = {

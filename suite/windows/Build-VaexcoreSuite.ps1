@@ -427,6 +427,7 @@ function Copy-Artifacts {
   }
 
   Copy-Item -Force (Join-Path $RootDir "suite\contract.json") (Join-Path $contractDir "contract.json")
+  Copy-Item -Force (Join-Path $ScriptDir "windows-validation-plan.json") (Join-Path $contractDir "windows-validation-plan.json")
   Copy-Item -Force (Join-Path $ScriptDir "Launch-VaexcoreSuite.ps1") (Join-Path $scriptsDir "Launch-VaexcoreSuite.ps1")
   Copy-Item -Force (Join-Path $ScriptDir "Launch-VaexcoreApp.ps1") (Join-Path $scriptsDir "Launch-VaexcoreApp.ps1")
   Copy-Item -Force (Join-Path $ScriptDir "Install-VaexcoreLaunchers.ps1") (Join-Path $scriptsDir "Install-VaexcoreLaunchers.ps1")
@@ -471,6 +472,12 @@ After installing, run:
 .\scripts\Start-VaexcoreSuite.vbs
 .\scripts\Test-VaexcoreWindowsPrerequisites.ps1
 .\scripts\Test-VaexcoreWindowsSuite.ps1
+```
+
+Windows validation plan:
+
+```text
+suite\windows-validation-plan.json
 ```
 
 Suite discovery path:

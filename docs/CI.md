@@ -11,7 +11,7 @@ Run these local commands before relying on the matching GitHub workflow.
 | Suite release gate | `node scripts/release-preflight.mjs && node scripts/check-ci-status.mjs --require-green` |
 | Suite release dry-run | `./scripts/release-dry-run.sh --skip-remote` |
 | Packaged app boot smoke | `node scripts/smoke-packaged-app-boot.mjs --apps-dir dist/mac-suite-apps` |
-| Release readiness report | `node scripts/release-readiness-report.mjs --artifact-dir dist/mac-suite --check` |
+| Release readiness report | `node scripts/release-readiness-report.mjs --artifact-dir dist/mac-suite --check && node scripts/release-readiness-report.mjs --skip-git --skip-remote --json --output .local/release-readiness.json && node scripts/release-readiness-report.mjs --skip-git --skip-remote --format markdown --output .local/release-readiness.md` |
 | Studio CI | `npm run ci` |
 | Pulse CI | `pnpm run ci` |
 | Console CI | `npm run ci` |

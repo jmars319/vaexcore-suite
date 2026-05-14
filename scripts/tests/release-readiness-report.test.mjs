@@ -28,7 +28,12 @@ test("release readiness report combines local gates without remote CI", () => {
   assert.ok(report.checks.some((item) => item.id === "version-alignment" && item.status === "pass"));
   assert.ok(report.checks.some((item) => item.id === "artifact-manifest" && item.status === "pass"));
   assert.ok(report.checks.some((item) => item.id === "automation-boundary" && item.status === "warn"));
+  assert.ok(report.checks.some((item) => item.id === "go-live-dry-run" && item.status === "warn"));
+  assert.ok(report.checks.some((item) => item.id === "pulse-intake-readiness" && item.status === "pass"));
+  assert.ok(report.checks.some((item) => item.id === "suite-static-checks" && item.status === "pass"));
+  assert.ok(report.checks.some((item) => item.id === "windows-handoff-pack" && item.status === "warn"));
   assert.ok(report.manualBlockers.some((item) => item.id === "live-twitch-oauth-chat"));
+  assert.ok(report.manualBlockers.some((item) => item.id === "windows-hardware-capture-and-encoder-validation"));
 });
 
 function writeDryRunManifestFixture() {

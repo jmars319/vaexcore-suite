@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "planId": "vaexcore-windows-handoff-v1",
+  "lastUpdated": "2026-05-14",
+  "status": "mac-code-ready-windows-hardware-pending",
+  "scope": "Windows 11 validation for Studio, Pulse, Console, Relay configuration, Suite launchers, signing, and installer artifacts.",
+  "suiteDiscoveryDir": "%APPDATA%\\vaexcore\\suite",
+  "artifactDir": "dist\\windows-suite",
+  "validationPolicy": {
+    "macAutomationMayPass": true,
+    "windowsHardwareValidationRequired": true,
+    "liveTwitchDiscordValidationRequired": true,
+    "notes": [
+      "Mac-side checks prove code and script readiness only.",
+      "Windows capture devices, encoders, installers, launchers, signing, and live service credentials must be validated on Windows hardware."
+    ]
+  },
+  "prerequisiteCommands": [
+    {
+      "id": "windows-prerequisites",
+      "command": ".\\suite\\windows\\Test-VaexcoreWindowsPrerequisites.ps1",
+      "evidence": "Prerequisite report shows required Windows tools and runtimes are available."
+    },
+    {
+      "id": "build-or-verify-artifacts",
+      "command": ".\\suite\\windows\\Build-VaexcoreSuite.ps1",
+      "evidence": "dist\\windows-suite contains Studio, Pulse, Console, launchers, and manifest artifacts."
+    },
+    {
+      "id": "suite-launchers",
+      "command": ".\\suite\\windows\\Test-VaexcoreWindowsSuite.ps1",
+      "evidence": "Suite launchers start installed apps and discovery heartbeats appear under %APPDATA%\\vaexcore\\suite."
+    },
+    {
+      "id": "signing",
+      "command": ".\\suite\\windows\\Test-VaexcoreWindowsSigning.ps1 -IncludeBuildArtifacts",
+      "evidence": "Installed apps and release artifacts report expected signing status."
+    }
+  ],
+  "validationStages": [
+    {
+      "id": "studio-output-readiness",
+      "owner": "Studio",
+      "status": "manual-windows-required",
+      "checks": [
+        "Open Studio on Windows.",
+        "Validate screen, window, camera, and microphone capture devices.",
+        "Validate recording path permissions and encoder readiness.",
+        "Confirm scene output-ready diagnostic before starting encoders."
+      ]
+    },
+    {
+      "id": "pulse-intake-readiness",
+      "owner": "Pulse",
+      "status": "manual-windows-required",
+      "checks": [
+        "Open Pulse on Windows.",
+        "Consume a Studio recording handoff with outputReady metadata.",
+        "Confirm review queue state, latest recording display, and media playback."
+      ]
+    },
+    {
+      "id": "console-bot-readiness",
+      "owner": "Console",
+      "status": "manual-live-required",
+      "checks": [
+        "Open Console setup workflow on Windows.",
+        "Validate local pairing, support bundle export, and bot completion states.",
+        "Complete live Twitch and Discord credential validation outside code automation."
+      ]
+    },
+    {
+      "id": "relay-service-readiness",
+      "owner": "Relay",
+      "status": "manual-live-required",
+      "checks": [
+        "Confirm Cloudflare Worker deployment and D1 migrations separately from this repo.",
+        "Run protected Relay diagnostics with real admin credentials.",
+        "Validate Twitch app-token send, retry queue, and Discord interaction registration in live services."
+      ]
+    },
+    {
+      "id": "suite-release-readiness",
+      "owner": "Suite",
+      "status": "code-checkable",
+      "checks": [
+        "Run node scripts/release-readiness-report.mjs --skip-git --skip-remote --json.",
+        "Run node scripts/release-readiness-report.mjs --skip-git --skip-remote --format markdown.",
+        "Archive JSON and Markdown reports with Windows validation evidence."
+      ]
+    }
+  ],
+  "manualBlockers": [
+    "Windows hardware capture and encoder validation",
+    "Windows installer and launcher validation",
+    "Authenticode signing validation",
+    "Twitch OAuth, EventSub, chat send, and stream key validation",
+    "Discord Interactions Endpoint, slash command, suggestion, and announcement validation"
+  ]
+}

@@ -82,6 +82,19 @@ test("cross-app handoff, command, and marker fixtures round-trip through temp fi
       profileName: "1080p",
       stoppedAt: "2026-05-06T12:05:00Z",
     },
+    outputReady: {
+      ready: true,
+      state: "ready",
+      detail: "Scene output handoff is ready for Pulse intake.",
+      activeSceneId: "scene-main",
+      activeSceneName: "Main scene",
+      programPreviewFrameReady: true,
+      compositorRenderPlanReady: true,
+      outputPreflightReady: true,
+      mediaPipelineReady: true,
+      blockers: [],
+      warnings: [],
+    },
   };
   const handoffPath = join(handoffDir, "pulse-recording-intake.json");
   writeFileSync(handoffPath, `${JSON.stringify(handoff, null, 2)}\n`);

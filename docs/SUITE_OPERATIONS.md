@@ -141,12 +141,15 @@ and manual validation blockers that automation should not treat as complete.
 
 ```bash
 node scripts/release-readiness-report.mjs --artifact-dir dist/mac-suite --check
+node scripts/release-readiness-report.mjs --skip-git --skip-remote --json --output .local/release-readiness.json
+node scripts/release-readiness-report.mjs --skip-git --skip-remote --format markdown --output .local/release-readiness.md
 ```
 
 Combines git cleanliness, version alignment, artifact manifest validation,
-automation-boundary status, and GitHub CI status into one release-readiness
-report. Use `--skip-remote` for local-only checks and `--skip-git` for fixture
-tests.
+automation-boundary status, go-live dry-run readiness, Pulse intake
+compatibility, Suite static checks, Windows handoff status, and GitHub CI status
+into one redacted release-readiness report. Use `--skip-remote` for local-only
+checks and `--skip-git` for fixture tests or local unpushed commit stacks.
 
 ```bash
 node scripts/check-go-live-readiness.mjs --json

@@ -17,6 +17,8 @@ node scripts/check-automation-boundary.mjs
 node scripts/check-windows-suite-scripts.mjs
 ./scripts/release-dry-run.sh --skip-remote
 node scripts/release-readiness-report.mjs --artifact-dir dist/mac-suite --check
+node scripts/release-readiness-report.mjs --skip-git --skip-remote --json --output .local/release-readiness.json
+node scripts/release-readiness-report.mjs --skip-git --skip-remote --format markdown --output .local/release-readiness.md
 ```
 
 For staged macOS app bundles, run the packaged boot smoke against the directory
@@ -45,6 +47,20 @@ mistaken for release-complete behavior:
 `node scripts/check-automation-boundary.mjs` verifies that each entry still has
 checked-in evidence. `node scripts/release-readiness-report.mjs` includes those
 items as warnings and manual blockers instead of silently passing them.
+
+The release-readiness report also aggregates Studio output readiness,
+Console bot readiness, Relay service readiness, Pulse intake compatibility,
+Suite static checks, and the Windows handoff pack. JSON output is redacted and
+intended for machine storage; Markdown output is intended for operator review.
+
+## Windows Handoff Pack
+
+`suite/windows/windows-validation-plan.json` is the machine-readable handoff
+artifact for Windows validation. Mac-side automation can prove the plan,
+launchers, PowerShell scripts, and readiness contracts are code-ready, but it
+must keep Windows hardware validation as a manual blocker until a Windows 11
+machine has validated capture devices, encoders, installers, launchers,
+signing, Twitch, and Discord.
 
 ## Notarization Environment
 

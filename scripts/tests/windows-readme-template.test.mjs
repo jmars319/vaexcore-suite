@@ -12,6 +12,7 @@ test("Windows suite README template uses a literal here-string with built timest
 
   assert.match(source, /\$summary = @'\n# vaexcore Windows Suite/);
   assert.match(source, /Built: __BUILT_AT__/);
+  assert.match(source, /suite\\windows-validation-plan\.json/);
   assert.match(source, /'@\.Replace\("__BUILT_AT__", \$builtAt\)/);
   assert.doesNotMatch(source, /Built: \$\(Get-Date/);
 });
