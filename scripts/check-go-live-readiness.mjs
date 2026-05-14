@@ -92,27 +92,54 @@ async function studioOutputReadiness({ config, env, fetcher, timeoutMs }) {
   if (!studio) {
     return fail("studio-output-readiness", "Studio is missing from suite contract.");
   }
-  const endpoint =
+  const studioOrigin = originFromEndpoint(studio.healthEndpoint);
+  const outputJobEndpoint =
+    env.VAEXCORE_STUDIO_OUTPUT_JOB_URL ?? `${studioOrigin}/output/job`;
+  const readinessEndpoint =
     env.VAEXCORE_STUDIO_OUTPUT_READINESS_URL ??
-    `${originFromEndpoint(studio.healthEndpoint)}/scene-runtime/readiness-report`;
-  const response = await fetchJson(fetcher, endpoint, {
+    `${studioOrigin}/scene-runtime/readiness-report`;
+  const outputJobResponse = await fetchJson(fetcher, outputJobEndpoint, {
     token: env.VAEXCORE_STUDIO_TOKEN,
     timeoutMs,
   });
-  if (!response.ok) {
+  if (outputJobResponse.ok) {
+    return studioOutputJobCheck(outputJobEndpoint, unwrapApiResponse(outputJobResponse.body));
+  }
+
+  const readinessResponse = await fetchJson(fetcher, readinessEndpoint, {
+    token: env.VAEXCORE_STUDIO_TOKEN,
+    timeoutMs,
+  });
+  if (!readinessResponse.ok) {
     return warn(
       "studio-output-readiness",
-      `Studio output readiness was not reachable at ${endpoint}.`,
-      { endpoint, error: response.error },
+      `Studio output job was not reachable at ${outputJobEndpoint}.`,
+      {
+        outputJobEndpoint,
+        readinessEndpoint,
+        outputJobError: outputJobResponse.error,
+        readinessError: readinessResponse.error,
+      },
     );
   }
-  const body = unwrapApiResponse(response.body);
+  const body = unwrapApiResponse(readinessResponse.body);
+  if (body?.output_job) {
+    return studioOutputJobCheck(readinessEndpoint, body.output_job, {
+      fallback: "scene-runtime-readiness-report",
+      outputJobEndpoint,
+      outputJobError: outputJobResponse.error,
+    });
+  }
   const output = body?.output_ready;
   if (!output) {
     return fail(
       "studio-output-readiness",
       "Studio readiness response did not include output_ready.",
-      { endpoint },
+      {
+        endpoint: readinessEndpoint,
+        outputJobEndpoint,
+        outputJobError: outputJobResponse.error,
+      },
     );
   }
   return {
@@ -121,7 +148,9 @@ async function studioOutputReadiness({ config, env, fetcher, timeoutMs }) {
     status: output.ready ? "pass" : output.state === "blocked" ? "fail" : "warn",
     summary: output.detail,
     details: {
-      endpoint,
+      endpoint: readinessEndpoint,
+      outputJobEndpoint,
+      fallback: "scene-runtime-readiness-report",
       state: output.state,
       activeScene: output.active_scene_name,
       programPreviewFrameReady: Boolean(output.program_preview_frame_ready),
@@ -131,6 +160,67 @@ async function studioOutputReadiness({ config, env, fetcher, timeoutMs }) {
       blockers: output.blockers ?? [],
       warnings: output.warnings ?? [],
     },
+  };
+}
+
+function studioOutputJobCheck(endpoint, job, extraDetails = {}) {
+  if (!job?.state) {
+    return fail(
+      "studio-output-readiness",
+      "Studio output job response did not include a job state.",
+      { endpoint, ...extraDetails },
+    );
+  }
+  if (job.state === "idle") {
+    return warn(
+      "studio-output-readiness",
+      "Studio is running but no output job has been prepared.",
+      studioOutputJobDetails(endpoint, job, extraDetails),
+    );
+  }
+  if (job.state === "cancelled") {
+    return warn(
+      "studio-output-readiness",
+      job.detail || "Studio prepared output job was cancelled.",
+      studioOutputJobDetails(endpoint, job, extraDetails),
+    );
+  }
+  if (job.state === "preparing") {
+    return warn(
+      "studio-output-readiness",
+      job.detail || "Studio output job is still preparing.",
+      studioOutputJobDetails(endpoint, job, extraDetails),
+    );
+  }
+  return {
+    id: "studio-output-readiness",
+    app: "vaexcore-studio",
+    status: job.state === "ready" ? "pass" : "fail",
+    summary:
+      job.detail ??
+      (job.state === "ready"
+        ? "Studio prepared output job is ready."
+        : "Studio prepared output job is blocked."),
+    details: studioOutputJobDetails(endpoint, job, extraDetails),
+  };
+}
+
+function studioOutputJobDetails(endpoint, job, extraDetails = {}) {
+  return {
+    endpoint,
+    ...extraDetails,
+    state: job.state,
+    activeScene: job.active_scene_name ?? null,
+    recordingProfile: job.recording_profile_name ?? null,
+    outputPathPreview: job.output_path_preview ?? null,
+    streamDestinationCount: job.stream_destination_count ?? job.stream_destination_ids?.length ?? 0,
+    sceneOutputReady: Boolean(job.scene_output_ready),
+    mediaPipelineReady: Boolean(job.media_pipeline_ready),
+    outputPreflightReady: Boolean(job.output_preflight_ready),
+    recordingTargetReady: Boolean(job.recording_target_ready),
+    streamTargetsReady: Boolean(job.stream_targets_ready),
+    blockers: job.blockers ?? [],
+    warnings: job.warnings ?? [],
   };
 }
 

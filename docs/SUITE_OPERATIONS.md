@@ -156,11 +156,13 @@ node scripts/check-go-live-readiness.mjs --json
 node scripts/check-go-live-readiness.mjs --format markdown
 ```
 
-Builds a local, no-deploy go-live checklist. It reads Studio output readiness
-from `/scene-runtime/readiness-report`, Console bot readiness from
-`/api/bot/completion`, and Relay service metadata from the suite service
-contract. Apps that are not running become warnings, while live Twitch,
-Discord, and Windows hardware validation remain explicit manual blockers.
+Builds a local, no-deploy go-live checklist. It prefers Studio's prepared dry-run
+output job from `/output/job`, falls back to `/scene-runtime/readiness-report`
+for older local Studio builds, reads Console bot readiness from
+`/api/bot/completion`, and reads Relay service metadata from the suite service
+contract. Apps that are not running become warnings, a blocked prepared Studio
+job fails the check, and live Twitch, Discord, and Windows hardware validation
+remain explicit manual blockers.
 
 ```bash
 node scripts/smoke-packaged-app-boot.mjs --apps-dir /Applications

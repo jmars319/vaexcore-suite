@@ -11,18 +11,37 @@ test("go-live readiness aggregates app contracts and manual blockers", async () 
     config: loadSuiteConfig(),
     generatedAt: "2026-05-13T12:00:00.000Z",
     fetcher: fakeFetch({
+      "http://127.0.0.1:51287/output/job": {
+        ok: true,
+        data: {
+          id: "output_job_ready",
+          state: "ready",
+          detail: "Prepared output job is ready.",
+          active_scene_name: "Main",
+          recording_profile_name: "Default Local Recording",
+          output_path_preview: "~/Movies/vaexcore/test.mkv",
+          stream_destination_count: 0,
+          scene_output_ready: true,
+          media_pipeline_ready: true,
+          output_preflight_ready: true,
+          recording_target_ready: true,
+          stream_targets_ready: true,
+          blockers: [],
+          warnings: [],
+        },
+      },
       "http://127.0.0.1:51287/scene-runtime/readiness-report": {
         ok: true,
         data: {
           output_ready: {
-            ready: true,
+            ready: false,
             state: "ready",
             active_scene_name: "Main",
             program_preview_frame_ready: true,
             compositor_render_plan_ready: true,
             output_preflight_ready: true,
             media_pipeline_ready: true,
-            detail: "Studio output is ready.",
+            detail: "Fallback should not be used.",
             blockers: [],
             warnings: [],
           },
@@ -74,6 +93,101 @@ test("go-live readiness aggregates app contracts and manual blockers", async () 
   const markdown = renderMarkdown(report);
   assert.match(markdown, /vaexcore Go-Live Readiness/);
   assert.match(markdown, /console-bot-readiness/);
+});
+
+test("go-live readiness warns when Studio is not running", async () => {
+  const report = await buildGoLiveReadiness({
+    config: loadSuiteConfig(),
+    generatedAt: "2026-05-13T12:00:00.000Z",
+    fetcher: fakeFetch({
+      "http://127.0.0.1:3434/api/bot/completion": {
+        ok: true,
+        status: "ready",
+        statusLabel: "ready",
+        statusDetail: "Bot setup code readiness is complete.",
+        completionPercent: 100,
+        sections: [],
+        nextActions: [],
+      },
+    }),
+  });
+
+  const studio = report.checks.find((check) => check.id === "studio-output-readiness");
+  assert.equal(studio?.status, "warn");
+  assert.match(studio?.summary ?? "", /output job was not reachable/);
+});
+
+test("go-live readiness warns when Studio has no prepared output job", async () => {
+  const report = await buildGoLiveReadiness({
+    config: loadSuiteConfig(),
+    generatedAt: "2026-05-13T12:00:00.000Z",
+    fetcher: fakeFetch({
+      "http://127.0.0.1:51287/output/job": {
+        ok: true,
+        data: {
+          id: "output-job-idle",
+          state: "idle",
+          detail: "No output job has been prepared.",
+          blockers: [],
+          warnings: [],
+        },
+      },
+      "http://127.0.0.1:3434/api/bot/completion": {
+        ok: true,
+        status: "ready",
+        statusLabel: "ready",
+        statusDetail: "Bot setup code readiness is complete.",
+        completionPercent: 100,
+        sections: [],
+        nextActions: [],
+      },
+    }),
+  });
+
+  const studio = report.checks.find((check) => check.id === "studio-output-readiness");
+  assert.equal(studio?.status, "warn");
+  assert.match(studio?.summary ?? "", /no output job has been prepared/);
+});
+
+test("go-live readiness fails when the prepared Studio output job is blocked", async () => {
+  const report = await buildGoLiveReadiness({
+    config: loadSuiteConfig(),
+    generatedAt: "2026-05-13T12:00:00.000Z",
+    fetcher: fakeFetch({
+      "http://127.0.0.1:51287/output/job": {
+        ok: true,
+        data: {
+          id: "output_job_blocked",
+          state: "blocked",
+          detail: "1 output job blocker must be resolved.",
+          active_scene_name: "Main",
+          recording_profile_name: "Default Local Recording",
+          output_path_preview: "~/Movies/vaexcore/test.mkv",
+          stream_destination_count: 1,
+          scene_output_ready: false,
+          media_pipeline_ready: true,
+          output_preflight_ready: false,
+          recording_target_ready: true,
+          stream_targets_ready: false,
+          blockers: ["Scene output readiness is blocked."],
+          warnings: [],
+        },
+      },
+      "http://127.0.0.1:3434/api/bot/completion": {
+        ok: true,
+        status: "ready",
+        statusLabel: "ready",
+        statusDetail: "Bot setup code readiness is complete.",
+        completionPercent: 100,
+        sections: [],
+        nextActions: [],
+      },
+    }),
+  });
+
+  const studio = report.checks.find((check) => check.id === "studio-output-readiness");
+  assert.equal(studio?.status, "fail");
+  assert.equal(report.ok, false);
 });
 
 test("go-live readiness redacts optional Relay response details", async () => {
