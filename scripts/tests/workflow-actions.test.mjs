@@ -28,6 +28,7 @@ test("Suite CI clones services for service-aware macOS checks", () => {
 
   assert.doesNotMatch(source, /console\/VaexCore/);
   assert.match(source, /\(cd console && npm ci\)/);
+  assert.match(source, /\(cd relay && npm ci\)/);
   assert.match(
     source,
     /Contract checks[\s\S]*\.\/scripts\/clone-or-update-apps\.sh --include-services/,

@@ -18,8 +18,8 @@ Run these local commands before relying on the matching GitHub workflow.
 | Relay CI | `npm run ci` |
 
 `./scripts/smoke-all.sh` delegates to each app's own aggregate CI script after
-running Suite contract checks, so local integration smoke and app workflows use
-the same gates.
+running Suite contract and bot-readiness checks. Bot readiness also runs Relay
+CI, so fresh clones need Relay dependencies installed before integration smoke.
 
 Use `node scripts/print-ci-summary.mjs` for a compact GitHub Actions table for
 Suite, Studio, Pulse, Console, and Relay, and
