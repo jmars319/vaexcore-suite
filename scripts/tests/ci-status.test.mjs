@@ -1,6 +1,22 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { formatRunSummary, isGreenRun, latestWorkflowRun } from "../lib/ci-status.mjs";
+import {
+  ciRepositories,
+  formatRunSummary,
+  isGreenRun,
+  latestWorkflowRun,
+} from "../lib/ci-status.mjs";
+
+test("CI repository list includes the Relay service workflow", () => {
+  assert.ok(
+    ciRepositories.some(
+      (repo) =>
+        repo.key === "relay" &&
+        repo.repo === "jmars319/vaexcore-relay" &&
+        repo.workflowName === "Relay CI",
+    ),
+  );
+});
 
 test("latest workflow status uses the newest run after an intermediate failure", () => {
   const latest = latestWorkflowRun(

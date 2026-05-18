@@ -21,7 +21,7 @@ jobs:
       - name: Contract checks
         run: |
           echo "::group::Clone app repos"
-          ./scripts/clone-or-update-apps.sh
+          ./scripts/clone-or-update-apps.sh --include-services
           echo "::endgroup::"
 
           echo "::group::Validate app repo branches"
@@ -87,7 +87,7 @@ jobs:
           mkdir -p "$LOG_DIR"
           {
             echo "::group::Clone app repos"
-            ./scripts/clone-or-update-apps.sh
+            ./scripts/clone-or-update-apps.sh --include-services
             echo "::endgroup::"
 
             echo "::group::Validate app repo branches"
@@ -97,7 +97,7 @@ jobs:
             echo "::group::Install app dependencies"
             (cd studio && npm ci)
             (cd pulse && pnpm install --frozen-lockfile)
-            (cd console/VaexCore && npm ci)
+            (cd console && npm ci)
             echo "::endgroup::"
 
             echo "::group::Run integration smoke"

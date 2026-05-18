@@ -208,7 +208,7 @@ node scripts/check-ci-status.mjs
 node scripts/check-ci-status.mjs --require-green
 ```
 
-Prints the latest `main` CI run for Suite, Studio, Pulse, and Console. The
+Prints the latest `main` CI run for Suite, Studio, Pulse, Console, and Relay. The
 `--require-green` form is the code-only gate to run before release packaging.
 
 ```powershell

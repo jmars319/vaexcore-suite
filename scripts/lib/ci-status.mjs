@@ -19,6 +19,11 @@ export const ciRepositories = [
     repo: "jmars319/vaexcore-console",
     workflowName: "Console CI",
   },
+  {
+    key: "relay",
+    repo: "jmars319/vaexcore-relay",
+    workflowName: "Relay CI",
+  },
 ];
 
 export function latestWorkflowRun(runs, workflowName) {

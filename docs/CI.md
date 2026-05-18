@@ -4,8 +4,8 @@ Run these local commands before relying on the matching GitHub workflow.
 
 | Workflow | Local command |
 | --- | --- |
-| Suite CI / contract | `node --test scripts/tests/*.test.mjs && node scripts/validate-suite-config.mjs --require-local-repos && node scripts/check-suite-repos.mjs && node scripts/generate-suite-protocol.mjs --check && node scripts/smoke-suite-contracts.mjs && node scripts/check-automation-boundary.mjs && node scripts/check-windows-suite-scripts.mjs` |
-| Suite CI / integration-smoke | `./scripts/smoke-all.sh` |
+| Suite CI / contract | `./scripts/clone-or-update-apps.sh --include-services && node --test scripts/tests/*.test.mjs && node scripts/validate-suite-config.mjs --require-local-repos && node scripts/check-suite-repos.mjs && node scripts/check-suite-services.mjs && node scripts/generate-suite-protocol.mjs --check && node scripts/smoke-suite-contracts.mjs && node scripts/check-automation-boundary.mjs && node scripts/check-windows-suite-scripts.mjs` |
+| Suite CI / integration-smoke | `./scripts/clone-or-update-apps.sh --include-services && ./scripts/smoke-all.sh` |
 | Suite CI / windows-launchers | `.\scripts\clone-or-update-apps.ps1; node scripts/check-suite-repos.mjs; node scripts/check-windows-suite-scripts.mjs --require-pwsh; node --test scripts/tests/windows-manifest.test.mjs scripts/tests/windows-readme-template.test.mjs` |
 | Windows signing check | `.\suite\windows\Test-VaexcoreWindowsSigning.ps1 -IncludeBuildArtifacts` |
 | Suite release gate | `node scripts/release-preflight.mjs && node scripts/check-ci-status.mjs --require-green` |
@@ -15,12 +15,14 @@ Run these local commands before relying on the matching GitHub workflow.
 | Studio CI | `npm run ci` |
 | Pulse CI | `pnpm run ci` |
 | Console CI | `npm run ci` |
+| Relay CI | `npm run ci` |
 
 `./scripts/smoke-all.sh` delegates to each app's own aggregate CI script after
 running Suite contract checks, so local integration smoke and app workflows use
 the same gates.
 
-Use `node scripts/print-ci-summary.mjs` for a compact GitHub Actions table, and
+Use `node scripts/print-ci-summary.mjs` for a compact GitHub Actions table for
+Suite, Studio, Pulse, Console, and Relay, and
 `node scripts/changes-since-green.mjs` to list local commits that have not yet
 been covered by the latest green CI run for each repo.
 
