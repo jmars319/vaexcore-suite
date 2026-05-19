@@ -11,11 +11,15 @@ Run these before treating a release candidate as mechanically ready:
 node --test scripts/tests/*.test.mjs
 node scripts/validate-suite-config.mjs --require-local-repos
 node scripts/check-suite-repos.mjs
+node scripts/check-suite-services.mjs
 node scripts/generate-suite-protocol.mjs --check
 node scripts/smoke-suite-contracts.mjs
 node scripts/check-automation-boundary.mjs
 node scripts/check-windows-suite-scripts.mjs
+node scripts/suite-status.mjs --skip-git --skip-remote
 ./scripts/release-dry-run.sh --skip-remote
+node scripts/write-release-handoff-bundle.mjs --skip-remote --artifact-dir dist/release-dry-run
+node scripts/smoke-studio-pulse-handoff.mjs --json
 node scripts/release-readiness-report.mjs --artifact-dir dist/mac-suite --check
 node scripts/release-readiness-report.mjs --skip-git --skip-remote --json --output .local/release-readiness.json
 node scripts/release-readiness-report.mjs --skip-git --skip-remote --format markdown --output .local/release-readiness.md
@@ -52,6 +56,17 @@ The release-readiness report also aggregates Studio output readiness,
 Console bot readiness, Relay service readiness, Pulse intake compatibility,
 Suite static checks, and the Windows handoff pack. JSON output is redacted and
 intended for machine storage; Markdown output is intended for operator review.
+
+`node scripts/suite-status.mjs --skip-git --skip-remote` is the fastest local command-center
+view. It writes `.local/suite-status.json` and `.local/suite-status.md`, then
+links to the release-readiness report, bot-readiness report, release handoff
+bundle, and Studio/Pulse handoff smoke. `--full` adds the heavier app CI smoke
+pass.
+
+`./scripts/release-dry-run.sh --skip-remote` now writes
+`.local/release-handoff/` after dry-run artifacts are generated. That bundle is
+ignored by git and contains redacted readiness, artifact, and CI-summary
+handoff files.
 
 ## Windows Handoff Pack
 

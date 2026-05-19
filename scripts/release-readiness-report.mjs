@@ -88,6 +88,11 @@ function gitRecords() {
       path: appAbsolutePath(suiteRoot, app),
       expectedBranch: app.branch,
     })),
+    ...config.services.map((service) => ({
+      key: service.id,
+      path: appAbsolutePath(suiteRoot, service),
+      expectedBranch: service.branch,
+    })),
   ];
   const records = [];
   const errors = [];

@@ -37,6 +37,17 @@ Clone or update the local app repos:
 ## Scripts
 
 ```bash
+node scripts/suite-status.mjs --skip-git --skip-remote
+node scripts/suite-status.mjs --skip-remote --full
+```
+
+Builds the local release command-center report under `.local/`:
+`suite-status.json`, `suite-status.md`, the release-readiness report, the bot
+readiness report, the release handoff bundle, and the Studio/Pulse handoff
+smoke report. The default mode runs credential-free code gates. `--full` also
+runs the heavier `smoke-all.sh` app CI pass.
+
+```bash
 ./scripts/smoke-all.sh
 ```
 
@@ -143,13 +154,22 @@ and manual validation blockers that automation should not treat as complete.
 node scripts/release-readiness-report.mjs --artifact-dir dist/mac-suite --check
 node scripts/release-readiness-report.mjs --skip-git --skip-remote --json --output .local/release-readiness.json
 node scripts/release-readiness-report.mjs --skip-git --skip-remote --format markdown --output .local/release-readiness.md
+node scripts/write-release-handoff-bundle.mjs --skip-remote --artifact-dir dist/release-dry-run
+node scripts/smoke-studio-pulse-handoff.mjs --json
 ```
 
 Combines git cleanliness, version alignment, artifact manifest validation,
 automation-boundary status, go-live dry-run readiness, Pulse intake
 compatibility, Suite static checks, Windows handoff status, and GitHub CI status
-into one redacted release-readiness report. Use `--skip-remote` for local-only
-checks and `--skip-git` for fixture tests or local unpushed commit stacks.
+into one redacted release-readiness report. The git check covers Suite, app
+repos, and service repos. Use `--skip-remote` for local-only checks and
+`--skip-git` for fixture tests or local unpushed commit stacks.
+
+The release handoff bundle writes redacted JSON/Markdown summaries under
+`.local/release-handoff/`, including artifact manifest status, release
+readiness, and CI summary. The Studio/Pulse handoff smoke verifies the Suite
+schema, Studio's handoff writer, Pulse intake validation, and accepted-marker
+export path without launching either app.
 
 ```bash
 node scripts/check-go-live-readiness.mjs --json

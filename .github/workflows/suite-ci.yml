@@ -26,6 +26,7 @@ jobs:
 
           echo "::group::Validate app repo branches"
           node scripts/check-suite-repos.mjs
+          node scripts/check-suite-services.mjs
           echo "::endgroup::"
 
           echo "::group::Run suite contract tests"
@@ -92,6 +93,7 @@ jobs:
 
             echo "::group::Validate app repo branches"
             node scripts/check-suite-repos.mjs
+            node scripts/check-suite-services.mjs
             echo "::endgroup::"
 
             echo "::group::Install app dependencies"

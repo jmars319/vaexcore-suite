@@ -37,6 +37,8 @@ test("Suite CI clones services for service-aware macOS checks", () => {
     source,
     /Integration smoke[\s\S]*\.\/scripts\/clone-or-update-apps\.sh --include-services/,
   );
+  assert.match(source, /Contract checks[\s\S]*node scripts\/check-suite-services\.mjs/);
+  assert.match(source, /Integration smoke[\s\S]*node scripts\/check-suite-services\.mjs/);
 });
 
 test("Suite CI uploads integration smoke debug artifacts on failure", () => {

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -34,6 +34,14 @@ test("release readiness report combines local gates without remote CI", () => {
   assert.ok(report.checks.some((item) => item.id === "windows-handoff-pack" && item.status === "warn"));
   assert.ok(report.manualBlockers.some((item) => item.id === "live-twitch-oauth-chat"));
   assert.ok(report.manualBlockers.some((item) => item.id === "windows-hardware-capture-and-encoder-validation"));
+});
+
+test("release readiness git check includes services", () => {
+  const source = readFileSync(join(suiteRoot, "scripts/release-readiness-report.mjs"), "utf8");
+
+  assert.match(source, /\.\.\.config\.apps\.map/);
+  assert.match(source, /\.\.\.config\.services\.map/);
+  assert.match(source, /key: service\.id/);
 });
 
 function writeDryRunManifestFixture() {
