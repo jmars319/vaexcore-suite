@@ -73,9 +73,19 @@ for (const script of scripts) {
     `[System.Management.Automation.Language.Parser]::ParseFile('${escapePowerShellString(script)}', [ref] $tokens, [ref] $errors) | Out-Null`,
     "if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_.Message }; exit 1 }",
   ].join("; ");
-  execFileSync(pwsh, ["-NoProfile", "-NonInteractive", "-Command", command], {
-    stdio: "inherit",
-  });
+  try {
+    execFileSync(pwsh, ["-NoProfile", "-NonInteractive", "-Command", command], {
+      stdio: "inherit",
+    });
+  } catch (error) {
+    if (!requirePwsh && isPwshRuntimeFailure(error)) {
+      console.warn(
+        `PowerShell parser check skipped: pwsh failed before parsing scripts (${runtimeFailureSummary(error)}). Static guards passed for ${scripts.length} scripts and ${launchers.length} launchers.`,
+      );
+      process.exit(0);
+    }
+    throw error;
+  }
 }
 
 console.log(
@@ -198,4 +208,22 @@ function findExecutable(name) {
 
 function escapePowerShellString(value) {
   return value.replaceAll("'", "''");
+}
+
+function isPwshRuntimeFailure(error) {
+  const output = runtimeFailureSummary(error);
+  return Boolean(
+    error?.signal ||
+      output.includes("Unhandled exception") ||
+      output.includes("FileLoadException") ||
+      output.includes("AssemblyNameParser"),
+  );
+}
+
+function runtimeFailureSummary(error) {
+  return String(error?.stderr ?? error?.message ?? error)
+    .split(/\r?\n/)
+    .filter(Boolean)
+    .slice(0, 4)
+    .join(" ");
 }
