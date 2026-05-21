@@ -37,6 +37,16 @@ Clone or update the local app repos:
 ## Scripts
 
 ```bash
+node scripts/rc-check.mjs --skip-remote
+```
+
+Runs the canonical local release-candidate pass. It orchestrates the unsigned
+RC dry run, RC dashboard, suite status, release readiness, and CI summary into
+`.local/rc-check/summary.json` and `.local/rc-check/summary.md`. It fails on
+code gate failures or stale app/service state, while signing, notarization, and
+hardware-only validation remain listed as manual release blockers.
+
+```bash
 node scripts/suite-status.mjs --skip-git --skip-remote
 node scripts/suite-status.mjs --skip-remote --full
 ```

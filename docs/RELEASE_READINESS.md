@@ -8,6 +8,7 @@ need a real operator machine or live service.
 Run these before treating a release candidate as mechanically ready:
 
 ```bash
+node scripts/rc-check.mjs --skip-remote
 node --test scripts/tests/*.test.mjs
 node scripts/validate-suite-config.mjs --require-local-repos
 node scripts/check-suite-repos.mjs
@@ -56,6 +57,13 @@ The release-readiness report also aggregates Studio output readiness,
 Console bot readiness, Relay service readiness, Pulse intake compatibility,
 Suite static checks, and the Windows handoff pack. JSON output is redacted and
 intended for machine storage; Markdown output is intended for operator review.
+
+`node scripts/rc-check.mjs --skip-remote` is the canonical local release-candidate
+command. It generates an unsigned RC dry run, RC dashboard, suite status,
+release-readiness report, and CI summary under `.local/rc-check/`. Code gate
+failures and stale app/service state block the command. Signing,
+notarization, and hardware-only validations remain explicit manual release
+blockers instead of false code failures.
 
 `node scripts/suite-status.mjs --skip-git --skip-remote` is the fastest local command-center
 view. It writes `.local/suite-status.json` and `.local/suite-status.md`, then
