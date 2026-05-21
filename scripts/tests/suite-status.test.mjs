@@ -43,5 +43,8 @@ test("capture-to-review smoke runs Studio recording into Pulse review export", (
   assert.match(source, /smoke-studio-handoff-review-export\.ts/);
   assert.match(source, /completionState/);
   assert.match(source, /verificationState/);
+  assert.match(source, /artifactTrail/);
+  assert.match(source, /pulse-accepted-export-summary\.json/);
+  assert.match(source, /acceptedOnly/);
   assert.match(source, /\.local\/capture-to-review-smoke\.json/);
 });

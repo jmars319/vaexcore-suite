@@ -69,7 +69,12 @@ The RC dashboard now reports Studio media recording smoke, Pulse handoff/export
 smoke, and the combined capture-to-review smoke as separate readiness lines.
 The combined smoke records through Studio, builds a Studio-to-Pulse handoff with
 completion and verification metadata, and verifies accepted-only timestamp,
-JSON, and EDL-style exports in Pulse.
+JSON, and EDL-style exports in Pulse. Its JSON report also includes an
+`artifactTrail` section with the Studio result path, recording session ID, file
+size, duration when available, completion/verification metadata, the generated
+handoff fixture, and the Pulse accepted-only export summary. `rc-dashboard` and
+`rc-check` surface this trail separately from readiness lines so RC review can
+trace the capture-to-review proof without treating it as a generic gate.
 
 `node scripts/suite-status.mjs --skip-git --skip-remote` is the fastest local command-center
 view. It writes `.local/suite-status.json` and `.local/suite-status.md`, then

@@ -184,7 +184,9 @@ export path without launching either app.
 `node scripts/smoke-capture-to-review.mjs` is the stronger capture-to-review
 rehearsal. It runs Studio's media-recording smoke, converts the verified output
 into a handoff fixture with completion and verification metadata, and runs
-Pulse's handoff/review/export smoke against that fixture.
+Pulse's handoff/review/export smoke against that fixture. The report writes a
+separate artifact trail with the Studio result, handoff fixture, and
+accepted-only timestamp, JSON, and EDL export summary for RC review.
 
 ```bash
 node scripts/check-go-live-readiness.mjs --json

@@ -128,6 +128,8 @@ function buildRcDashboard() {
     studioMediaSmoke,
     pulseHandoffExportSmoke: pulseHandoffSmoke,
     captureToReviewSmoke,
+    captureToReviewArtifactTrail:
+      captureToReviewSmoke.report?.artifactTrail ?? null,
     artifactManifest,
     manualReleaseBlockers: manualBlockers,
     checks,
@@ -356,6 +358,13 @@ function smokeJsonCommandCheck(id, label, command, argsForCommand, outputPath) {
     details: {
       output: relativeToSuite(outputPath),
       summary: report?.summary ?? null,
+      artifactTrail: report?.artifactTrail
+        ? {
+            status: report.artifactTrail.status,
+            summary: report.artifactTrail.summary,
+            outputs: report.artifactTrail.outputs,
+          }
+        : null,
       stdoutTail: outputTail(result.stdout),
       stderrTail: outputTail(result.stderr),
     },
@@ -495,6 +504,22 @@ function renderMarkdown(dashboard) {
   for (const project of dashboard.projects) {
     lines.push(
       `| ${project.id} | ${project.kind} | ${project.status} | ${String(project.head ?? "skipped").slice(0, 12)} |`,
+    );
+  }
+
+  if (dashboard.captureToReviewArtifactTrail) {
+    const trail = dashboard.captureToReviewArtifactTrail;
+    lines.push("", "## Capture-To-Review Artifact Trail", "");
+    lines.push(`Status: ${trail.status}`);
+    lines.push(`Summary: ${trail.summary}`);
+    lines.push(
+      `Studio result: ${trail.studioRecording?.resultPath ?? "not available"}`,
+    );
+    lines.push(
+      `Handoff fixture: ${trail.handoffFixture?.path ?? "not available"}`,
+    );
+    lines.push(
+      `Pulse export summary: ${trail.outputs?.pulseExportSummary ?? "not available"}`,
     );
   }
 

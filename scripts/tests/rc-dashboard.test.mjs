@@ -19,6 +19,8 @@ test("rc dashboard aggregates release-candidate code gates and app smokes", () =
   assert.match(source, /smoke:media-recording/);
   assert.match(source, /smoke:studio-handoff/);
   assert.match(source, /smoke-capture-to-review\.mjs/);
+  assert.match(source, /captureToReviewArtifactTrail/);
+  assert.match(source, /Capture-To-Review Artifact Trail/);
   assert.match(source, /projectGitRecord/);
   assert.match(source, /consoleRelayReadinessSummary/);
   assert.match(source, /manualReleaseBlockers/);

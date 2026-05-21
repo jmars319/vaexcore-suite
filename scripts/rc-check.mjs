@@ -184,6 +184,10 @@ function buildRcCheck() {
       consoleRelayReadiness: rcReport?.consoleRelayReadiness ?? null,
       artifactManifest: summarizeNestedCheck(rcReport?.artifactManifest),
     },
+    captureToReviewArtifactTrail:
+      rcReport?.captureToReviewArtifactTrail ??
+      rcReport?.captureToReviewSmoke?.report?.artifactTrail ??
+      null,
     manualReleaseBlockers: manualBlockers([
       unsignedDryRun.report,
       rcDashboard.report,
@@ -361,6 +365,22 @@ function renderMarkdown(summary) {
   for (const project of summary.appServiceState.projects) {
     lines.push(
       `| ${project.id} | ${project.kind} | ${project.status} | ${String(project.head ?? "skipped").slice(0, 12)} |`,
+    );
+  }
+
+  if (summary.captureToReviewArtifactTrail) {
+    const trail = summary.captureToReviewArtifactTrail;
+    lines.push("", "## Capture-To-Review Artifact Trail", "");
+    lines.push(`Status: ${trail.status}`);
+    lines.push(`Summary: ${trail.summary}`);
+    lines.push(
+      `Studio result: ${trail.studioRecording?.resultPath ?? "not available"}`,
+    );
+    lines.push(
+      `Handoff fixture: ${trail.handoffFixture?.path ?? "not available"}`,
+    );
+    lines.push(
+      `Pulse export summary: ${trail.outputs?.pulseExportSummary ?? "not available"}`,
     );
   }
 

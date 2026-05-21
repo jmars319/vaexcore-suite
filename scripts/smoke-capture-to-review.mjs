@@ -89,6 +89,8 @@ function buildReport() {
   let handoff = null;
   let handoffPath = null;
   let pulseSmoke = null;
+  let pulseExportSummary = null;
+  let pulseExportSummaryPath = null;
   if (studioResult?.ok && !studioResult.skipped) {
     handoff = buildHandoffFixture(studioResult, generatedAt);
     handoffPath = join(outputDir, "studio-pulse-recording-handoff.json");
@@ -106,6 +108,19 @@ function buildReport() {
           { cwd: pulsePath },
         )
       : missingProjectResult("Pulse");
+    pulseExportSummary = buildPulseExportSummary({
+      generatedAt,
+      handoff,
+      pulseSmoke,
+    });
+    pulseExportSummaryPath = join(
+      outputDir,
+      "pulse-accepted-export-summary.json",
+    );
+    writeFileSync(
+      pulseExportSummaryPath,
+      `${JSON.stringify(redactReportValue(pulseExportSummary), null, 2)}\n`,
+    );
   }
 
   if (pulseSmoke) {
@@ -134,6 +149,28 @@ function buildReport() {
     });
   }
 
+  const artifactTrail = buildArtifactTrail({
+    handoff,
+    handoffPath,
+    outputPath,
+    pulseExportSummary,
+    pulseExportSummaryPath,
+    pulseSmoke,
+    studioResult,
+    studioResultPath,
+  });
+  checks.push({
+    id: "capture-to-review-artifact-trail",
+    status: artifactTrail.status,
+    summary: artifactTrail.summary,
+    details: {
+      studioRecording: artifactTrail.studioRecording,
+      handoffFixture: artifactTrail.handoffFixture,
+      pulseAcceptedExports: artifactTrail.pulseAcceptedExports,
+      outputs: artifactTrail.outputs,
+    },
+  });
+
   const failCount = checks.filter((item) => item.status === "fail").length;
   const warnCount = checks.filter((item) => item.status === "warn").length;
 
@@ -156,13 +193,87 @@ function buildReport() {
     output: {
       json: relativeToSuite(outputPath),
       handoff: relativeToSuite(handoffPath),
+      pulseExportSummary: relativeToSuite(pulseExportSummaryPath),
     },
     studioMediaSmoke: summarizeCommand(studioSmoke),
     studioResult,
     handoff,
     pulseHandoffExportSmoke: pulseSmoke ? summarizeCommand(pulseSmoke) : null,
+    pulseAcceptedExportSummary: pulseExportSummary,
+    artifactTrail,
     checks,
   });
+}
+
+function buildPulseExportSummary({ generatedAt, handoff, pulseSmoke }) {
+  const ok = Boolean(pulseSmoke?.ok);
+  const formats = ["timestamps", "json", "edl"].map((format) => ({
+    format,
+    status: ok ? "pass" : "fail",
+    acceptedOnly: ok,
+    summary: ok
+      ? `Pulse smoke asserted ${format} export includes accepted moments and excludes rejected moments.`
+      : `Pulse ${format} export assertion did not complete.`,
+  }));
+  return {
+    schemaVersion: 1,
+    generatedAt,
+    ok,
+    source: "pulse smoke assertions",
+    handoffRequestId: handoff?.requestId ?? null,
+    pulseSessionId: "session_studio_handoff_smoke",
+    acceptedCount: ok ? 1 : 0,
+    rejectedExcluded: ok,
+    formats,
+  };
+}
+
+function buildArtifactTrail({
+  handoff,
+  handoffPath,
+  outputPath,
+  pulseExportSummary,
+  pulseExportSummaryPath,
+  pulseSmoke,
+  studioResult,
+  studioResultPath,
+}) {
+  const skipped = Boolean(studioResult?.skipped);
+  const ok = Boolean(studioResult?.ok && !skipped && pulseSmoke?.ok);
+  const status = ok ? "pass" : skipped ? "warn" : "fail";
+  const summary = ok
+    ? "Studio recording, handoff fixture, and Pulse accepted-only exports are linked for RC review."
+    : skipped
+      ? "Studio recording was skipped, so the capture-to-review artifact trail is incomplete."
+      : "Capture-to-review artifact trail is incomplete.";
+  return {
+    schemaVersion: 1,
+    status,
+    summary,
+    studioRecording: {
+      resultPath: relativeToSuite(studioResultPath),
+      sessionId: studioResult?.sessionId ?? null,
+      recordingPath: studioResult?.recordingPath ?? null,
+      size: studioResult?.size ?? null,
+      durationMs:
+        studioResult?.completion?.duration_ms ??
+        studioResult?.verification?.duration_ms ??
+        null,
+      completion: studioResult?.completion ?? null,
+      verification: studioResult?.verification ?? null,
+    },
+    handoffFixture: {
+      path: relativeToSuite(handoffPath),
+      requestId: handoff?.requestId ?? null,
+      recordingSessionId: handoff?.recording?.sessionId ?? null,
+      outputPath: handoff?.recording?.outputPath ?? null,
+    },
+    pulseAcceptedExports: pulseExportSummary,
+    outputs: {
+      report: relativeToSuite(outputPath),
+      pulseExportSummary: relativeToSuite(pulseExportSummaryPath),
+    },
+  };
 }
 
 function buildHandoffFixture(studioResult, generatedAt) {
@@ -295,6 +406,23 @@ function renderMarkdown(report) {
   ];
   for (const item of report.checks) {
     lines.push(`| ${item.id} | ${item.status} | ${escapeTable(item.summary)} |`);
+  }
+  if (report.artifactTrail) {
+    lines.push(
+      "",
+      "## Artifact Trail",
+      "",
+      `Status: ${report.artifactTrail.status}`,
+      `Studio result: ${
+        report.artifactTrail.studioRecording?.resultPath ?? "not available"
+      }`,
+      `Handoff fixture: ${
+        report.artifactTrail.handoffFixture?.path ?? "not available"
+      }`,
+      `Pulse export summary: ${
+        report.artifactTrail.outputs?.pulseExportSummary ?? "not available"
+      }`,
+    );
   }
   lines.push("");
   return `${lines.join("\n")}\n`;
