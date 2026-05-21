@@ -79,6 +79,8 @@ validate("pulse handoff", schemas.handoff, {
     outputPath: "/tmp/rec_smoke.mkv",
     profileId: "profile_1080p",
     profileName: "1080p",
+    captureMode: "display",
+    captureDetail: "Main Display recorded as a source-backed display.",
     stoppedAt: now,
   },
   outputReady: {

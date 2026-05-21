@@ -85,10 +85,11 @@ function buildReport() {
       patterns: [
         "consume_pulse_recording_handoff",
         "consume_pulse_recording_handoff_file",
+        "capture_mode",
         "outputReady",
       ],
       passSummary:
-        "Pulse desktop command consumes and validates Suite recording handoffs.",
+        "Pulse desktop command consumes and validates Suite recording handoffs with capture metadata.",
     }),
     sourceCheck({
       id: "pulse-review-export-marker",
@@ -96,6 +97,7 @@ function buildReport() {
       relativeFile: "apps/desktopapp/src/App.tsx",
       patterns: [
         "applyPulseRecordingHandoff",
+        "captureDetail",
         "accepted-highlight-export",
         "outputReadinessLabel",
       ],
@@ -161,6 +163,8 @@ function buildOutputReadyHandoffFixture() {
       outputPath: "/tmp/studio-pulse-handoff-smoke.mkv",
       profileId: "profile_1080p",
       profileName: "1080p",
+      captureMode: "display",
+      captureDetail: "Main Display recorded as a source-backed display.",
       stoppedAt: "2026-05-19T12:05:00Z",
     },
     outputReady: {

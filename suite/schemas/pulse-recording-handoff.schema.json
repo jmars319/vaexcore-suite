@@ -50,6 +50,8 @@
         "outputPath": { "type": "string", "minLength": 1 },
         "profileId": { "type": ["string", "null"] },
         "profileName": { "type": ["string", "null"] },
+        "captureMode": { "type": ["string", "null"] },
+        "captureDetail": { "type": ["string", "null"] },
         "stoppedAt": { "type": "string", "format": "date-time" }
       }
     }

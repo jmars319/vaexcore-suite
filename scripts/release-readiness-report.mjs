@@ -395,6 +395,8 @@ function buildPulseRecordingHandoffFixture(includeOutputReady) {
       outputPath: "/tmp/rec_smoke.mkv",
       profileId: "profile_1080p",
       profileName: "1080p",
+      captureMode: "display",
+      captureDetail: "Main Display recorded as a source-backed display.",
       stoppedAt: "2026-05-06T12:05:00Z",
     },
   };

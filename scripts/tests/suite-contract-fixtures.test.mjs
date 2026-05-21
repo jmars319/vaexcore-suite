@@ -80,6 +80,8 @@ test("cross-app handoff, command, and marker fixtures round-trip through temp fi
       outputPath: "/tmp/rec_smoke.mkv",
       profileId: "profile_1080p",
       profileName: "1080p",
+      captureMode: "display",
+      captureDetail: "Main Display recorded as a source-backed display.",
       stoppedAt: "2026-05-06T12:05:00Z",
     },
     outputReady: {
