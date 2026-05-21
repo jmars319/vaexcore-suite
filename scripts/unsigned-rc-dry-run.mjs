@@ -90,6 +90,8 @@ function buildSummary(dryRun) {
     releaseType: "unsigned release candidate",
     ok: dryRun.ok && manifestOk && handoffOk,
     unsigned: true,
+    manualBlockerMode:
+      "Manual release blockers are reported separately and do not count as unsigned RC code failures.",
     status:
       dryRun.ok && manifestOk && handoffOk
         ? "unsigned-rc-generated"
@@ -155,6 +157,12 @@ function buildSummary(dryRun) {
         nextValidation:
           "Windows signing is not part of this unsigned release candidate dry run.",
       },
+      {
+        id: "unsigned-windows-hardware-validation",
+        app: "Release",
+        nextValidation:
+          "Windows hardware validation is not part of this unsigned release candidate dry run.",
+      },
     ],
   });
 }
@@ -175,6 +183,11 @@ function renderMarkdown(summary) {
     `Release type: ${summary.releaseType}`,
     `Overall: ${summary.status}`,
     `Artifacts: ${summary.artifacts.count}`,
+    "",
+    "Passing this dry run means the unsigned package inputs, manifests, sidecars,",
+    "checksums, and handoff reports are repeatable. Signing, notarization, and",
+    "hardware validation remain manual release blockers listed below; they are",
+    "not counted as unsigned RC code failures.",
     "",
     "| Area | Status | Detail |",
     "| --- | --- | --- |",

@@ -47,6 +47,8 @@ test("unsigned rc dry-run labels output honestly and writes local handoff paths"
   assert.match(dryRunSource, /Developer ID signing is not part/);
   assert.match(dryRunSource, /Apple notarization is not part/);
   assert.match(dryRunSource, /Windows signing is not part/);
+  assert.match(dryRunSource, /Windows hardware validation is not part/);
+  assert.match(dryRunSource, /not counted as unsigned RC code failures/);
   assert.match(shellSource, /HANDOFF_DIR/);
   assert.match(shellSource, /SKIP_GIT/);
   assert.match(shellSource, /--handoff-dir/);
