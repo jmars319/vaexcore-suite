@@ -19,7 +19,7 @@ As of 2026-05-10:
 - The first production Worker deployment and D1 migrations have been applied.
 - Console has been paired to Relay locally.
 - Twitch/client relay base secrets are set in Cloudflare Worker secrets.
-- Discord Worker secrets are still pending: `DISCORD_BOT_TOKEN`, `DISCORD_PUBLIC_KEY`, `DISCORD_APPLICATION_ID`, plus `DISCORD_GUILD_ID` for the live server.
+- Discord Worker secrets are still pending: `DISCORD_BOT_TOKEN`, `DISCORD_PUBLIC_KEY`, `DISCORD_APPLICATION_ID`, and `DISCORD_CLIENT_SECRET`. `DISCORD_GUILD_ID` is now only a manual fallback because Console can connect and store the selected guild through Relay.
 
 Do not create a second Relay service. Continue live integration from this deployed Worker and D1 database.
 
@@ -57,16 +57,23 @@ Do not create a second Relay service. Continue live integration from this deploy
    npx wrangler secret put DISCORD_BOT_TOKEN
    npx wrangler secret put DISCORD_PUBLIC_KEY
    npx wrangler secret put DISCORD_APPLICATION_ID
+   npx wrangler secret put DISCORD_CLIENT_SECRET
    ```
 
-7. Set Discord target vars or secrets for the live server:
+7. Optional Discord fallback secrets:
 
    ```bash
    npx wrangler secret put DISCORD_GUILD_ID
    npx wrangler secret put DISCORD_OPERATOR_ROLE_ID
    ```
 
-8. Deploy Relay:
+8. In Discord Developer Portal, add the OAuth redirect URI:
+
+   ```text
+   https://relay.vaexil.tv/oauth/discord/callback
+   ```
+
+9. Deploy Relay:
 
    ```bash
    npm run deploy
@@ -107,8 +114,10 @@ Do not create a second Relay service. Continue live integration from this deploy
    ```
 
 2. In Console `Discord`, click `Check Relay`.
-3. Click `Register slash commands`.
-4. In Discord, verify these commands exist:
+3. Click `Connect Discord`, choose the target server, and return to Console.
+4. Preview and apply hosted server setup if needed.
+5. Click `Register slash commands`.
+6. In Discord, verify these commands exist:
 
    ```text
    /suggest
@@ -119,11 +128,11 @@ Do not create a second Relay service. Continue live integration from this deploy
    /setup-status
    ```
 
-5. Run `/suggest text: <message>` as a normal viewer.
-6. In Console, click `Load suggestions` and confirm the suggestion appears.
-7. Mark the suggestion reviewed, accepted, rejected, or archived.
-8. Run `/live`, `/late`, `/cancelled`, and `/scheduled` from an allowed operator role or a user with Manage Server permission.
-9. Confirm those commands queue for Console review and do not directly post public announcements.
+7. Run `/suggest text: <message>` as a normal viewer.
+8. In Console, click `Load suggestions` and confirm the suggestion appears.
+9. Mark the suggestion reviewed, accepted, rejected, or archived.
+10. Run `/live`, `/late`, `/cancelled`, and `/scheduled` from an allowed operator role or a user with Manage Server permission.
+11. Confirm those commands queue for Console review and do not directly post public announcements.
 
 ## Local Validation Commands
 
