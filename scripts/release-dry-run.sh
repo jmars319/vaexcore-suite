@@ -3,7 +3,9 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ARTIFACT_DIR="${VAEXCORE_RELEASE_DRY_RUN_DIR:-${ROOT_DIR}/dist/release-dry-run}"
+HANDOFF_DIR="${VAEXCORE_RELEASE_DRY_RUN_HANDOFF_DIR:-${ROOT_DIR}/.local/release-handoff}"
 SKIP_REMOTE=0
+SKIP_GIT=0
 
 while [[ "$#" -gt 0 ]]; do
   case "$1" in
@@ -11,8 +13,16 @@ while [[ "$#" -gt 0 ]]; do
       ARTIFACT_DIR="$2"
       shift 2
       ;;
+    --handoff-dir)
+      HANDOFF_DIR="$2"
+      shift 2
+      ;;
     --skip-remote)
       SKIP_REMOTE=1
+      shift
+      ;;
+    --skip-git)
+      SKIP_GIT=1
       shift
       ;;
     *)
@@ -48,7 +58,13 @@ fi
 node "$ROOT_DIR/scripts/write-dry-run-artifacts.mjs" --artifact-dir "$ARTIFACT_DIR" --clean
 node "$ROOT_DIR/scripts/write-suite-manifest.mjs" --platform macOS --arch "$(uname -m)" --artifact-dir "$ARTIFACT_DIR"
 node "$ROOT_DIR/scripts/check-release-artifacts.mjs" --artifact-dir "$ARTIFACT_DIR" --manifest-only
-node "$ROOT_DIR/scripts/release-readiness-report.mjs" --skip-remote --artifact-dir "$ARTIFACT_DIR" --require-artifacts --check
-node "$ROOT_DIR/scripts/write-release-handoff-bundle.mjs" --skip-remote --artifact-dir "$ARTIFACT_DIR" --output-dir "$ROOT_DIR/.local/release-handoff" --require-artifacts
+RELEASE_READINESS_ARGS=(--skip-remote --artifact-dir "$ARTIFACT_DIR" --require-artifacts)
+HANDOFF_ARGS=(--skip-remote --artifact-dir "$ARTIFACT_DIR" --output-dir "$HANDOFF_DIR" --require-artifacts)
+if [[ "$SKIP_GIT" -eq 1 ]]; then
+  RELEASE_READINESS_ARGS+=(--skip-git)
+  HANDOFF_ARGS+=(--skip-git)
+fi
+node "$ROOT_DIR/scripts/release-readiness-report.mjs" "${RELEASE_READINESS_ARGS[@]}" --check
+node "$ROOT_DIR/scripts/write-release-handoff-bundle.mjs" "${HANDOFF_ARGS[@]}"
 
 echo "vaexcore release dry-run passed"
