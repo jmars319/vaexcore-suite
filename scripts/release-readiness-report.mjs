@@ -397,6 +397,14 @@ function buildPulseRecordingHandoffFixture(includeOutputReady) {
       profileName: "1080p",
       captureMode: "display",
       captureDetail: "Main Display recorded as a source-backed display.",
+      completionState: "completed",
+      completionDetail: "FFmpeg stopped after a quit signal. Output passed recording verification.",
+      verificationState: "verified",
+      verificationDetail:
+        "Recording file exists, is non-empty, and ffprobe metadata was read.",
+      fileSizeBytes: 360093,
+      durationMs: 2125,
+      processStatus: "exit status: 0",
       stoppedAt: "2026-05-06T12:05:00Z",
     },
   };

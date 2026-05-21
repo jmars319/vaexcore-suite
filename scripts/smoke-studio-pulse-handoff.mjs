@@ -74,6 +74,8 @@ function buildReport() {
         "handoff_recording_to_pulse",
         "write_pulse_recording_handoff",
         "PULSE_RECORDING_INTAKE_FILE",
+        "completion_state",
+        "verification_state",
       ],
       passSummary:
         "Studio desktop command writes the Suite pulse-recording-intake handoff.",
@@ -98,6 +100,7 @@ function buildReport() {
       patterns: [
         "applyPulseRecordingHandoff",
         "captureDetail",
+        "verificationState",
         "accepted-highlight-export",
         "outputReadinessLabel",
       ],
@@ -165,6 +168,14 @@ function buildOutputReadyHandoffFixture() {
       profileName: "1080p",
       captureMode: "display",
       captureDetail: "Main Display recorded as a source-backed display.",
+      completionState: "completed",
+      completionDetail: "FFmpeg stopped after a quit signal. Output passed recording verification.",
+      verificationState: "verified",
+      verificationDetail:
+        "Recording file exists, is non-empty, and ffprobe metadata was read.",
+      fileSizeBytes: 360093,
+      durationMs: 2125,
+      processStatus: "exit status: 0",
       stoppedAt: "2026-05-19T12:05:00Z",
     },
     outputReady: {

@@ -65,6 +65,12 @@ failures and stale app/service state block the command. Signing,
 notarization, and hardware-only validations remain explicit manual release
 blockers instead of false code failures.
 
+The RC dashboard now reports Studio media recording smoke, Pulse handoff/export
+smoke, and the combined capture-to-review smoke as separate readiness lines.
+The combined smoke records through Studio, builds a Studio-to-Pulse handoff with
+completion and verification metadata, and verifies accepted-only timestamp,
+JSON, and EDL-style exports in Pulse.
+
 `node scripts/suite-status.mjs --skip-git --skip-remote` is the fastest local command-center
 view. It writes `.local/suite-status.json` and `.local/suite-status.md`, then
 links to the release-readiness report, bot-readiness report, release handoff

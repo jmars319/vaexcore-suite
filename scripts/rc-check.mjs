@@ -180,6 +180,7 @@ function buildRcCheck() {
       pulseHandoffExportSmoke: summarizeNestedCheck(
         rcReport?.pulseHandoffExportSmoke,
       ),
+      captureToReviewSmoke: summarizeNestedCheck(rcReport?.captureToReviewSmoke),
       consoleRelayReadiness: rcReport?.consoleRelayReadiness ?? null,
       artifactManifest: summarizeNestedCheck(rcReport?.artifactManifest),
     },

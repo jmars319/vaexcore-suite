@@ -181,6 +181,11 @@ readiness, and CI summary. The Studio/Pulse handoff smoke verifies the Suite
 schema, Studio's handoff writer, Pulse intake validation, and accepted-marker
 export path without launching either app.
 
+`node scripts/smoke-capture-to-review.mjs` is the stronger capture-to-review
+rehearsal. It runs Studio's media-recording smoke, converts the verified output
+into a handoff fixture with completion and verification metadata, and runs
+Pulse's handoff/review/export smoke against that fixture.
+
 ```bash
 node scripts/check-go-live-readiness.mjs --json
 node scripts/check-go-live-readiness.mjs --format markdown

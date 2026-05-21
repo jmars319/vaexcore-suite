@@ -16,6 +16,7 @@ test("rc check orchestrates the unsigned release-candidate command surface", () 
   assert.match(source, /--require-artifacts/);
   assert.match(source, /studioMediaSmoke/);
   assert.match(source, /pulseHandoffExportSmoke/);
+  assert.match(source, /captureToReviewSmoke/);
   assert.match(source, /consoleRelayReadiness/);
   assert.match(source, /manualReleaseBlockers/);
 });

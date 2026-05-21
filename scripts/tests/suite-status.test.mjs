@@ -32,3 +32,16 @@ test("studio pulse handoff smoke verifies the cross-app handoff path", () => {
   assert.match(source, /accepted-highlight-export/);
   assert.match(source, /outputReady/);
 });
+
+test("capture-to-review smoke runs Studio recording into Pulse review export", () => {
+  const source = readFileSync(
+    join(suiteRoot, "scripts/smoke-capture-to-review.mjs"),
+    "utf8",
+  );
+
+  assert.match(source, /smoke:media-recording/);
+  assert.match(source, /smoke-studio-handoff-review-export\.ts/);
+  assert.match(source, /completionState/);
+  assert.match(source, /verificationState/);
+  assert.match(source, /\.local\/capture-to-review-smoke\.json/);
+});

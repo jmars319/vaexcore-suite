@@ -52,6 +52,27 @@
         "profileName": { "type": ["string", "null"] },
         "captureMode": { "type": ["string", "null"] },
         "captureDetail": { "type": ["string", "null"] },
+        "completionState": {
+          "type": ["string", "null"],
+          "enum": ["completed", "failed", "partial", "skipped", "unknown", null]
+        },
+        "completionDetail": { "type": ["string", "null"] },
+        "verificationState": {
+          "type": ["string", "null"],
+          "enum": [
+            "verified",
+            "basic_verified",
+            "missing",
+            "empty",
+            "unreadable",
+            "skipped",
+            null
+          ]
+        },
+        "verificationDetail": { "type": ["string", "null"] },
+        "fileSizeBytes": { "type": ["integer", "null"], "minimum": 0 },
+        "durationMs": { "type": ["integer", "null"], "minimum": 0 },
+        "processStatus": { "type": ["string", "null"] },
         "stoppedAt": { "type": "string", "format": "date-time" }
       }
     }

@@ -70,6 +70,18 @@ function buildRcDashboard() {
     "pnpm",
     ["run", "smoke:studio-handoff"],
   );
+  const captureToReviewSmoke = smokeJsonCommandCheck(
+    "capture-to-review-smoke",
+    "Capture-to-review smoke",
+    "node",
+    [
+      "scripts/smoke-capture-to-review.mjs",
+      "--output",
+      join(outputDir, "capture-to-review-smoke.json"),
+      "--json",
+    ],
+    join(outputDir, "capture-to-review-smoke.json"),
+  );
   const artifactManifest = artifactManifestCheck();
   const manualBlockers = manualReleaseBlockers(releaseReadiness.report);
   const checks = [
@@ -78,6 +90,7 @@ function buildRcDashboard() {
     ciSummary,
     skipSmokes ? skippedSmokeCheck("studio-media-recording") : studioMediaSmoke,
     skipSmokes ? skippedSmokeCheck("pulse-studio-handoff") : pulseHandoffSmoke,
+    skipSmokes ? skippedSmokeCheck("capture-to-review-smoke") : captureToReviewSmoke,
     artifactManifest,
   ];
   const failCount = checks.filter((check) => check.status === "fail").length;
@@ -114,6 +127,7 @@ function buildRcDashboard() {
     consoleRelayReadiness: consoleRelayReadinessSummary(suiteStatus.report),
     studioMediaSmoke,
     pulseHandoffExportSmoke: pulseHandoffSmoke,
+    captureToReviewSmoke,
     artifactManifest,
     manualReleaseBlockers: manualBlockers,
     checks,
@@ -316,6 +330,36 @@ function smokeCommandCheck(id, label, cwd, command, argsForCommand) {
       stdoutTail: outputTail(result.stdout),
       stderrTail: outputTail(result.stderr),
     },
+  };
+}
+
+function smokeJsonCommandCheck(id, label, command, argsForCommand, outputPath) {
+  const result = runCommand(command, argsForCommand);
+  const report = parseJsonOutput(result.stdout) ?? readOptionalJson(outputPath);
+  const status =
+    !result.ok || !report?.ok
+      ? "fail"
+      : report.summary?.warnCount > 0
+        ? "warn"
+        : "pass";
+  return {
+    id,
+    label,
+    status,
+    summary:
+      status === "pass"
+        ? `${label} passed.`
+        : status === "warn"
+          ? `${label} passed with warning(s).`
+          : `${label} failed.`,
+    durationMs: result.durationMs,
+    details: {
+      output: relativeToSuite(outputPath),
+      summary: report?.summary ?? null,
+      stdoutTail: outputTail(result.stdout),
+      stderrTail: outputTail(result.stderr),
+    },
+    report,
   };
 }
 
