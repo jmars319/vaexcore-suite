@@ -16,7 +16,7 @@ test("Suite CI keeps a native Windows launcher syntax job", () => {
   const source = readFileSync(join(suiteRoot, ".github/workflows/suite-ci.yml"), "utf8");
 
   assert.match(source, /windows-launchers:/);
-  assert.match(source, /runs-on:\s*windows-latest/);
+  assert.match(source, /runs-on:\s*windows-2025/);
   assert.match(source, /\.\\scripts\\clone-or-update-apps\.ps1/);
   assert.match(source, /node scripts\/check-suite-repos\.mjs/);
   assert.match(source, /node scripts\/check-windows-suite-scripts\.mjs --require-pwsh/);

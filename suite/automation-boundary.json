@@ -26,7 +26,7 @@
       "evidence": [
         {
           "path": "studio/apps/desktop/src-tauri/src/lib.rs",
-          "contains": "System audio capture is not implemented in the MVP media pipeline."
+          "contains": "Native system audio capture is deferred."
         }
       ]
     },
