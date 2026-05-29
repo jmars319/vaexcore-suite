@@ -109,6 +109,17 @@ Verification path: run Console `npm run smoke:studio`, then query Studio
 markers with `GET /markers?source_app=vaexcore-console` when doing a live
 localhost rehearsal.
 
+For an isolated rehearsal that does not touch real Studio marker data, run:
+
+```bash
+node scripts/smoke-console-studio-markers.mjs --json
+```
+
+The smoke starts Studio's marker API against a temporary SQLite database, runs
+Console's chat and giveaway marker rehearsal, verifies idempotency on
+`source_app + source_event_id`, and queries Studio for the resulting Console
+markers.
+
 ```bash
 ./scripts/install-apps.sh
 ```
