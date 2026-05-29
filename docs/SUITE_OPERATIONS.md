@@ -94,6 +94,21 @@ Studio's local API defaults to `http://127.0.0.1:51287`. Pulse and Console use
 Studio's discovery file or `VAEXCORE_STUDIO_API_URL` / `VITE_VAEXCORE_STUDIO_API_URL`
 when launched outside the packaged desktop apps.
 
+## Console-To-Studio Marker Protocol
+
+The suite marker contract is `vaexcore.studio.marker.v1` from
+`suite/contract.json`. Console is the first owner-confirmed marker producer for
+Studio chat and giveaway moments:
+
+- Chat markers use `eventType=console.chat.marker` and `source_event_id=chat:<message-id>` when a chat id is available.
+- Giveaway markers use `eventType=console.giveaway.<action>` for `start`, `close`, `last-call`, `draw`, `reroll`, and `end`.
+- Giveaway marker ids follow `vaexcore-console:giveaway:<giveaway-id>:<action>:<stable-suffix>`.
+- Studio keeps idempotency on `source_app + source_event_id`; `POST /marker/create` does not change.
+
+Verification path: run Console `npm run smoke:studio`, then query Studio
+markers with `GET /markers?source_app=vaexcore-console` when doing a live
+localhost rehearsal.
+
 ```bash
 ./scripts/install-apps.sh
 ```
