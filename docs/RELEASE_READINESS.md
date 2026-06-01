@@ -44,14 +44,12 @@ audio services.
 `suite/automation-boundary.json` is the source of truth for work that is not
 mistaken for release-complete behavior:
 
-- Intentional code placeholders: offline STT, timeline-level edit alignment,
-  Studio GStreamer/system-audio capture, and AI assist.
 - Manual validation blockers: Twitch OAuth/live chat and macOS permission,
   signing, trust, and notarization behavior on a real machine.
 
 `node scripts/check-automation-boundary.mjs` verifies that each entry still has
-checked-in evidence. `node scripts/release-readiness-report.mjs` includes those
-items as warnings and manual blockers instead of silently passing them.
+checked-in evidence. `node scripts/release-readiness-report.mjs` includes the
+remaining manual blockers as warnings instead of silently passing them.
 
 The release-readiness report also aggregates Studio output readiness,
 Console bot readiness, Relay service readiness, Pulse intake compatibility,

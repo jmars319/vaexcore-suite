@@ -5,9 +5,13 @@ default:
 
 verify:
     ./scripts/check-all.sh --manifest-only
+    ./scripts/check-maintainability.sh
 
 doctor:
     ./scripts/check-all.sh --manifest-only
+
+maintainability:
+    ./scripts/check-maintainability.sh
 
 actions:
     actionlint

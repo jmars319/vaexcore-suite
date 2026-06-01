@@ -66,43 +66,60 @@ function buildReport() {
       "Pulse advertises the studio.recording.intake capability.",
       { app: pulse?.id ?? null },
     ),
-    sourceCheck({
+    sourceGroupCheck({
       id: "studio-writes-handoff",
       project: studio,
-      relativeFile: "apps/desktop/src-tauri/src/lib.rs",
-      patterns: [
-        "handoff_recording_to_pulse",
-        "write_pulse_recording_handoff",
-        "PULSE_RECORDING_INTAKE_FILE",
-        "completion_state",
-        "verification_state",
+      files: [
+        {
+          relativeFile:
+            "apps/desktop/src-tauri/src/desktop/suite_commands/commands_discovery/command_handlers.rs",
+          patterns: ["handoff_recording_to_pulse", "write_pulse_recording_handoff"],
+        },
+        {
+          relativeFile:
+            "apps/desktop/src-tauri/src/desktop/suite_commands/commands_discovery/session_io.rs",
+          patterns: ["completion_state", "verification_state"],
+        },
+        {
+          relativeFile: "apps/desktop/src-tauri/src/suite_protocol.rs",
+          patterns: ["PULSE_RECORDING_INTAKE_FILE"],
+        },
       ],
       passSummary:
         "Studio desktop command writes the Suite pulse-recording-intake handoff.",
     }),
-    sourceCheck({
+    sourceGroupCheck({
       id: "pulse-consumes-handoff",
       project: pulse,
-      relativeFile: "apps/desktopapp/src-tauri/src/lib.rs",
-      patterns: [
-        "consume_pulse_recording_handoff",
-        "consume_pulse_recording_handoff_file",
-        "capture_mode",
-        "outputReady",
+      files: [
+        {
+          relativeFile: "apps/desktopapp/src-tauri/src/lib.rs",
+          patterns: ["consume_pulse_recording_handoff"],
+        },
+        {
+          relativeFile: "apps/desktopapp/src-tauri/src/suite_runtime/commands.rs",
+          patterns: [
+            "consume_pulse_recording_handoff_file",
+            "captureMode",
+            "outputReady",
+          ],
+        },
       ],
       passSummary:
         "Pulse desktop command consumes and validates Suite recording handoffs with capture metadata.",
     }),
-    sourceCheck({
+    sourceGroupCheck({
       id: "pulse-review-export-marker",
       project: pulse,
-      relativeFile: "apps/desktopapp/src/App.tsx",
-      patterns: [
-        "applyPulseRecordingHandoff",
-        "captureDetail",
-        "verificationState",
-        "accepted-highlight-export",
-        "outputReadinessLabel",
+      files: [
+        {
+          relativeFile: "apps/desktopapp/src/hooks/useStudioIntakeController.ts",
+          patterns: ["captureDetail", "verificationState", "outputReadinessLabel"],
+        },
+        {
+          relativeFile: "apps/desktopapp/src/hooks/useStudioExportController.ts",
+          patterns: ["accepted-highlight-export"],
+        },
       ],
       passSummary:
         "Pulse review workspace surfaces Studio output readiness and exports accepted markers.",
@@ -122,25 +139,34 @@ function buildReport() {
   };
 }
 
-function sourceCheck({ id, project, relativeFile, patterns, passSummary }) {
+function sourceGroupCheck({ id, project, files, passSummary }) {
   if (!project) {
     return check(id, false, "Project is missing from apps.json.", null);
   }
-  const filePath = join(appAbsolutePath(suiteRoot, project), relativeFile);
-  if (!existsSync(filePath)) {
-    return check(id, false, `${relativeFile} is missing.`, {
-      path: relativePath(filePath),
-    });
+
+  const checkedFiles = [];
+  const missingMessages = [];
+  for (const file of files) {
+    const filePath = join(appAbsolutePath(suiteRoot, project), file.relativeFile);
+    if (!existsSync(filePath)) {
+      missingMessages.push(`${file.relativeFile} is missing`);
+      checkedFiles.push({ path: relativePath(filePath), patterns: file.patterns });
+      continue;
+    }
+
+    const source = readFileSync(filePath, "utf8");
+    const missingPatterns = file.patterns.filter((pattern) => !source.includes(pattern));
+    if (missingPatterns.length > 0) {
+      missingMessages.push(`${file.relativeFile} is missing ${missingPatterns.join(", ")}`);
+    }
+    checkedFiles.push({ path: relativePath(filePath), patterns: file.patterns });
   }
-  const source = readFileSync(filePath, "utf8");
-  const missing = patterns.filter((pattern) => !source.includes(pattern));
+
   return check(
     id,
-    missing.length === 0,
-    missing.length === 0
-      ? passSummary
-      : `${relativeFile} is missing ${missing.join(", ")}.`,
-    { path: relativePath(filePath), patterns },
+    missingMessages.length === 0,
+    missingMessages.length === 0 ? passSummary : `${missingMessages.join("; ")}.`,
+    { files: checkedFiles },
   );
 }
 

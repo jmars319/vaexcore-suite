@@ -28,7 +28,7 @@ Suite, Studio, Pulse, Console, and Relay, and
 `node scripts/changes-since-green.mjs` to list local commits that have not yet
 been covered by the latest green CI run for each repo.
 
-`node scripts/check-automation-boundary.mjs` audits intentional placeholders and
-manual validation blockers tracked in `suite/automation-boundary.json`. The
-release readiness report includes that audit so code-only gates stay distinct
-from Twitch OAuth/chat checks and macOS permission/trust checks.
+`node scripts/check-automation-boundary.mjs` audits manual validation blockers
+tracked in `suite/automation-boundary.json`. The release readiness report
+includes that audit so code-only gates stay distinct from Twitch OAuth/chat
+checks and macOS permission/trust checks.

@@ -204,7 +204,9 @@ function addAutomationBoundaryCheck() {
   addCheck(
     "automation-boundary",
     "warn",
-    `${boundary.codePlaceholders} intentional code placeholders and ${boundary.manualValidations} manual validation blockers remain tracked.`,
+    boundary.codePlaceholders > 0
+      ? `${boundary.codePlaceholders} intentional code placeholders and ${boundary.manualValidations} manual validation blockers remain tracked.`
+      : `${boundary.manualValidations} manual validation blockers remain tracked.`,
     {
       codePlaceholders: boundary.codePlaceholders,
       manualValidations: boundary.manualValidations,

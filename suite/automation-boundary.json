@@ -1,77 +1,7 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-05-07",
+  "updatedAt": "2026-06-01",
   "items": [
-    {
-      "id": "studio-gstreamer-engine",
-      "app": "vaexcore-studio",
-      "category": "intentional-placeholder",
-      "status": "code-placeholder",
-      "automationLimit": "GStreamer engine wiring is intentionally not implemented in the current media engine.",
-      "nextValidation": "Replace the placeholder with a real offline media pipeline and add capability/preflight tests before enabling it by default.",
-      "evidence": [
-        {
-          "path": "studio/crates/vaexcore-media/src/lib.rs",
-          "contains": "GStreamerMediaEngine is not implemented yet"
-        }
-      ]
-    },
-    {
-      "id": "studio-system-audio-capture",
-      "app": "vaexcore-studio",
-      "category": "intentional-placeholder",
-      "status": "code-placeholder",
-      "automationLimit": "System audio capture is exposed as a guarded placeholder, not a working capture source.",
-      "nextValidation": "Implement the system-audio capture source and add a macOS permission/capability smoke before removing this blocker.",
-      "evidence": [
-        {
-          "path": "studio/apps/desktop/src-tauri/src/lib.rs",
-          "contains": "Native system audio capture is deferred."
-        }
-      ]
-    },
-    {
-      "id": "pulse-offline-stt-provider",
-      "app": "vaexcore-pulse",
-      "category": "intentional-placeholder",
-      "status": "code-placeholder",
-      "automationLimit": "Pulse still uses the local stub transcript provider instead of a real offline STT implementation.",
-      "nextValidation": "Wire an offline STT provider, record provider selection in session metadata, and add analyzer integration fixtures.",
-      "evidence": [
-        {
-          "path": "pulse/services/analyzer/src/vaexcore_pulse_analyzer/pipeline/transcript.py",
-          "contains": "Wire provider interface to real offline STT implementation"
-        }
-      ]
-    },
-    {
-      "id": "pulse-timeline-edit-alignment",
-      "app": "vaexcore-pulse",
-      "category": "intentional-placeholder",
-      "status": "code-placeholder",
-      "automationLimit": "Timeline-level keep/remove alignment for edit comparisons is not implemented yet.",
-      "nextValidation": "Implement timeline alignment and add persisted session regression fixtures for paired source/edit media.",
-      "evidence": [
-        {
-          "path": "pulse/services/analyzer/src/vaexcore_pulse_analyzer/storage/session_store.py",
-          "contains": "timeline-level keep/remove alignment is not implemented yet"
-        }
-      ]
-    },
-    {
-      "id": "pulse-ai-assist-placeholder",
-      "app": "vaexcore-pulse",
-      "category": "intentional-placeholder",
-      "status": "code-placeholder",
-      "automationLimit": "AI assist is currently a deterministic placeholder helper, not a model-backed workflow.",
-      "nextValidation": "Add a local or configured model provider and deterministic eval fixtures before presenting AI assist as real analysis.",
-      "evidence": [
-        {
-          "path": "pulse/packages/ai-assist/src/index.ts",
-          "contains": "AI assist placeholder"
-        }
-      ]
-    },
     {
       "id": "live-twitch-oauth-chat",
       "app": "vaexcore-console",

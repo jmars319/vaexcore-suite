@@ -183,8 +183,8 @@ variables required when `VAEXCORE_MAC_SIGN=1` or `VAEXCORE_MAC_NOTARIZE=1`.
 node scripts/check-automation-boundary.mjs
 ```
 
-Audits `suite/automation-boundary.json`, which tracks intentional placeholders
-and manual validation blockers that automation should not treat as complete.
+Audits `suite/automation-boundary.json`, which tracks manual validation blockers
+that automation should not treat as complete.
 
 ```bash
 node scripts/release-readiness-report.mjs --artifact-dir dist/mac-suite --check

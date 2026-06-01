@@ -11,8 +11,8 @@ test("automation boundary evidence stays current", () => {
   const report = JSON.parse(output);
 
   assert.equal(report.ok, true);
-  assert.ok(report.codePlaceholders >= 5);
+  assert.equal(report.codePlaceholders, 0);
   assert.ok(report.manualValidations >= 2);
-  assert.ok(report.items.some((item) => item.id === "pulse-offline-stt-provider"));
   assert.ok(report.items.some((item) => item.id === "live-twitch-oauth-chat"));
+  assert.ok(report.items.some((item) => item.id === "macos-permissions-and-trust"));
 });
