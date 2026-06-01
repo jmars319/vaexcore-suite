@@ -37,7 +37,10 @@ test("release readiness report combines local gates without remote CI", () => {
 });
 
 test("release readiness git check includes services", () => {
-  const source = readFileSync(join(suiteRoot, "scripts/release-readiness-report.mjs"), "utf8");
+  const source = readFileSync(
+    join(suiteRoot, "scripts/lib/release-readiness/git-checks.mjs"),
+    "utf8",
+  );
 
   assert.match(source, /\.\.\.config\.apps\.map/);
   assert.match(source, /\.\.\.config\.services\.map/);

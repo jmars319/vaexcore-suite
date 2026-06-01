@@ -38,6 +38,7 @@ test("Suite CI clones services for service-aware macOS checks", () => {
     /name:\s*Clone app repos for integration smoke[\s\S]*\.\/scripts\/clone-or-update-apps\.sh --include-services/,
   );
   assert.match(source, /Contract checks[\s\S]*node scripts\/check-suite-services\.mjs/);
+  assert.match(source, /Contract checks[\s\S]*node scripts\/audit-maintainability\.mjs --strict/);
   assert.match(
     source,
     /name:\s*Validate app repo branches and services[\s\S]*node scripts\/check-suite-services\.mjs/,
@@ -77,6 +78,22 @@ test("Suite CI uploads integration smoke debug artifacts on failure", () => {
   assert.match(source, /if:\s*failure\(\)/);
   assert.match(source, /integration-smoke\.log/);
   assert.match(source, /pulse-service-bundle\.json/);
+});
+
+test("suite-owned workflows set explicit timeouts and current checkout actions", () => {
+  const suiteCi = readFileSync(join(suiteRoot, ".github/workflows/suite-ci.yml"), "utf8");
+  const toolingSecurity = readFileSync(
+    join(suiteRoot, ".github/workflows/tooling-security.yml"),
+    "utf8",
+  );
+  const secretScan = readFileSync(join(suiteRoot, ".github/workflows/secret-scan.yml"), "utf8");
+
+  assert.match(suiteCi, /contract:[\s\S]*timeout-minutes:\s*20/);
+  assert.match(suiteCi, /integration-smoke:[\s\S]*timeout-minutes:\s*45/);
+  assert.match(suiteCi, /windows-launchers:[\s\S]*timeout-minutes:\s*10/);
+  assert.match(toolingSecurity, /timeout-minutes:\s*20/);
+  assert.match(secretScan, /timeout-minutes:\s*10/);
+  assert.match(secretScan, /actions\/checkout@v6/);
 });
 
 test("app CI workflows set timeouts and cache dependency stores", () => {

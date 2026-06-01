@@ -14,6 +14,7 @@ jobs:
   just-security:
     name: just security
     runs-on: macos-latest
+    timeout-minutes: 20
     steps:
       - name: Check out repository
         uses: actions/checkout@v6

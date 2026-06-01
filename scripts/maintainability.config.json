@@ -1,0 +1,50 @@
+{
+  "label": "vaexcore-suite",
+  "maxImplementationFileLines": 525,
+  "maxStyleFileLines": 400,
+  "maxCliEntrypointLines": 160,
+  "maxCompatibilityBarrelLines": 80,
+  "maxPowerShellEntrypointLines": 120,
+  "maxPowerShellModuleLines": 400,
+  "nearLineBudgetWarningLines": 25,
+  "nearAssetBudgetWarningKb": 8,
+  "sourceExtensions": [".mjs", ".js", ".cjs", ".sh", ".ps1", ".yml", ".yaml"],
+  "sourceRoots": ["scripts", "suite/windows", ".github/workflows"],
+  "excludedPathPrefixes": ["studio/", "pulse/", "console/", "relay/", ".local/", "data/", "dist/"],
+  "generatedPathPatterns": [
+    "/dist/",
+    "dist/",
+    "/build/",
+    "/target/",
+    "/node_modules/",
+    ".local/",
+    "release/",
+    ".tsbuildinfo",
+    ".log",
+    ".sqlite",
+    ".db"
+  ],
+  "blockedImportPatterns": ["/dist/", "dist/", "/build/", "/target/", "node_modules/"],
+  "specificFileLineBudgets": {
+    "scripts/lib/suite-config.mjs": 80,
+    "scripts/rc-dashboard.mjs": 120,
+    "scripts/release-readiness-report.mjs": 90,
+    "suite/windows/Build-VaexcoreSuite.ps1": 90
+  },
+  "assetBudgets": [
+    {
+      "file": "suite/windows/assets/vaexcore-suite.ico",
+      "maxKb": 380
+    },
+    {
+      "file": "suite/windows/assets/vaexcore-suite.jpg",
+      "maxKb": 1400
+    }
+  ],
+  "requiredWorkflowTimeouts": [
+    ".github/workflows/suite-ci.yml",
+    ".github/workflows/tooling-security.yml",
+    ".github/workflows/secret-scan.yml"
+  ],
+  "requiredIgnoredPaths": ["/.local/", "/data/", "/dist/", "release/"]
+}

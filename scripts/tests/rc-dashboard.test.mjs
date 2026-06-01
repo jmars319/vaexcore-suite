@@ -6,10 +6,15 @@ import { redactReportValue } from "../lib/redact-report.mjs";
 import { suiteRoot } from "../lib/suite-config.mjs";
 
 test("rc dashboard aggregates release-candidate code gates and app smokes", () => {
-  const source = readFileSync(
-    join(suiteRoot, "scripts/rc-dashboard.mjs"),
-    "utf8",
-  );
+  const source = [
+    "scripts/rc-dashboard.mjs",
+    "scripts/lib/rc-dashboard/build.mjs",
+    "scripts/lib/rc-dashboard/checks.mjs",
+    "scripts/lib/rc-dashboard/project-git.mjs",
+    "scripts/lib/rc-dashboard/render.mjs",
+  ]
+    .map((file) => readFileSync(join(suiteRoot, file), "utf8"))
+    .join("\n");
 
   assert.match(source, /\.local\/rc-dashboard/);
   assert.match(source, /unsigned release candidate dashboard/);

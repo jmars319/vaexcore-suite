@@ -65,6 +65,16 @@ Validates the suite config/schema contract, then runs the focused integration
 smoke checks for Studio, Pulse, and Console.
 
 ```bash
+node scripts/audit-maintainability.mjs --strict
+./scripts/check-maintainability.sh
+```
+
+Runs the suite-root maintainability audit and then the app repo maintainability
+and bundle checks. The suite audit covers orchestration scripts, workflows,
+Windows launcher/build scripts, tracked suite assets, generated-output hygiene,
+and verification wiring.
+
+```bash
 ./scripts/check-all.sh
 ```
 

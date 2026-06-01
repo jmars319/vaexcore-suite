@@ -39,7 +39,7 @@ Do not create a second Relay service. Continue live integration from this deploy
    ```
 
 3. Create the Cloudflare D1 database for Relay.
-4. Replace the placeholder D1 `database_id` in `relay/wrangler.jsonc`.
+4. Replace the sample D1 `database_id` in `relay/wrangler.jsonc` with the configured Cloudflare value.
 5. Apply D1 migrations:
 
    ```bash

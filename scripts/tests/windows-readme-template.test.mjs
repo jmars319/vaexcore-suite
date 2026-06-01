@@ -9,10 +9,15 @@ test("Windows suite README template uses a literal here-string with built timest
     "\r\n",
     "\n",
   );
+  const artifactSource = readFileSync(
+    join(suiteRoot, "suite/windows/build-modules/Artifacts.ps1"),
+    "utf8",
+  ).replaceAll("\r\n", "\n");
 
-  assert.match(source, /\$summary = @'\n# vaexcore Windows Suite/);
-  assert.match(source, /Built: __BUILT_AT__/);
-  assert.match(source, /suite\\windows-validation-plan\.json/);
-  assert.match(source, /'@\.Replace\("__BUILT_AT__", \$builtAt\)/);
-  assert.doesNotMatch(source, /Built: \$\(Get-Date/);
+  assert.match(source, /build-modules/);
+  assert.match(artifactSource, /\$summary = @'\n# vaexcore Windows Suite/);
+  assert.match(artifactSource, /Built: __BUILT_AT__/);
+  assert.match(artifactSource, /suite\\windows-validation-plan\.json/);
+  assert.match(artifactSource, /'@\.Replace\("__BUILT_AT__", \$builtAt\)/);
+  assert.doesNotMatch(artifactSource, /Built: \$\(Get-Date/);
 });

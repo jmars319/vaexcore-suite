@@ -14,6 +14,7 @@ Run these local commands before relying on the matching GitHub workflow.
 | Suite status command center | `node scripts/suite-status.mjs --skip-remote` |
 | Packaged app boot smoke | `node scripts/smoke-packaged-app-boot.mjs --apps-dir dist/mac-suite-apps` |
 | Release readiness report | `node scripts/release-readiness-report.mjs --artifact-dir dist/mac-suite --check && node scripts/release-readiness-report.mjs --skip-git --skip-remote --json --output .local/release-readiness.json && node scripts/release-readiness-report.mjs --skip-git --skip-remote --format markdown --output .local/release-readiness.md` |
+| Suite root maintainability | `node scripts/audit-maintainability.mjs --strict && ./scripts/check-maintainability.sh` |
 | Studio CI | `npm run ci` |
 | Pulse CI | `pnpm run ci` |
 | Console CI | `npm run ci` |
@@ -32,3 +33,8 @@ been covered by the latest green CI run for each repo.
 tracked in `suite/automation-boundary.json`. The release readiness report
 includes that audit so code-only gates stay distinct from Twitch OAuth/chat
 checks and macOS permission/trust checks.
+
+`just verify` runs the suite-root maintainability audit before delegating to the
+app repo audits and bundle budgets. Suite CI also exposes the integration-smoke
+flow as named steps, so failures identify the clone, dependency, contract,
+readiness, or app-CI stage that needs attention.
