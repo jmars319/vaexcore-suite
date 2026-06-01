@@ -80,33 +80,78 @@ jobs:
           node-version: "22"
       - run: rustup default stable
       - run: corepack enable
-      - name: Integration smoke
+      - name: Prepare integration smoke logs
+        shell: bash
+        run: |
+          LOG_DIR="${RUNNER_TEMP}/vaexcore-suite-ci"
+          mkdir -p "$LOG_DIR"
+          : > "$LOG_DIR/integration-smoke.log"
+          echo "SUITE_CI_LOG_DIR=$LOG_DIR" >> "$GITHUB_ENV"
+      - name: Clone app repos for integration smoke
         shell: bash
         run: |
           set -o pipefail
-          LOG_DIR="${RUNNER_TEMP}/vaexcore-suite-ci"
-          mkdir -p "$LOG_DIR"
+          ./scripts/clone-or-update-apps.sh --include-services 2>&1 | tee -a "$SUITE_CI_LOG_DIR/integration-smoke.log"
+      - name: Validate app repo branches and services
+        shell: bash
+        run: |
+          set -o pipefail
           {
-            echo "::group::Clone app repos"
-            ./scripts/clone-or-update-apps.sh --include-services
-            echo "::endgroup::"
-
-            echo "::group::Validate app repo branches"
             node scripts/check-suite-repos.mjs
             node scripts/check-suite-services.mjs
-            echo "::endgroup::"
-
-            echo "::group::Install app dependencies"
-            (cd studio && npm ci)
-            (cd pulse && pnpm install --frozen-lockfile)
-            (cd console && npm ci)
-            (cd relay && npm ci)
-            echo "::endgroup::"
-
-            echo "::group::Run integration smoke"
-            ./scripts/smoke-all.sh
-            echo "::endgroup::"
-          } 2>&1 | tee "$LOG_DIR/integration-smoke.log"
+          } 2>&1 | tee -a "$SUITE_CI_LOG_DIR/integration-smoke.log"
+      - name: Install Studio dependencies
+        shell: bash
+        run: |
+          set -o pipefail
+          (cd studio && npm ci) 2>&1 | tee -a "$SUITE_CI_LOG_DIR/integration-smoke.log"
+      - name: Install Pulse dependencies
+        shell: bash
+        run: |
+          set -o pipefail
+          (cd pulse && pnpm install --frozen-lockfile) 2>&1 | tee -a "$SUITE_CI_LOG_DIR/integration-smoke.log"
+      - name: Install Console dependencies
+        shell: bash
+        run: |
+          set -o pipefail
+          (cd console && npm ci) 2>&1 | tee -a "$SUITE_CI_LOG_DIR/integration-smoke.log"
+      - name: Install Relay dependencies
+        shell: bash
+        run: |
+          set -o pipefail
+          (cd relay && npm ci) 2>&1 | tee -a "$SUITE_CI_LOG_DIR/integration-smoke.log"
+      - name: Run suite config and contract smoke
+        shell: bash
+        run: |
+          set -o pipefail
+          {
+            node --test scripts/tests/*.test.mjs
+            node scripts/validate-suite-config.mjs --require-local-repos
+            node scripts/check-suite-repos.mjs
+            node scripts/check-suite-services.mjs
+            node scripts/generate-suite-protocol.mjs --check
+            node scripts/smoke-suite-contracts.mjs
+          } 2>&1 | tee -a "$SUITE_CI_LOG_DIR/integration-smoke.log"
+      - name: Check bot readiness
+        shell: bash
+        run: |
+          set -o pipefail
+          node scripts/check-bot-readiness.mjs 2>&1 | tee -a "$SUITE_CI_LOG_DIR/integration-smoke.log"
+      - name: Run Studio CI
+        shell: bash
+        run: |
+          set -o pipefail
+          (cd studio && npm run ci) 2>&1 | tee -a "$SUITE_CI_LOG_DIR/integration-smoke.log"
+      - name: Run Pulse CI
+        shell: bash
+        run: |
+          set -o pipefail
+          (cd pulse && pnpm run ci) 2>&1 | tee -a "$SUITE_CI_LOG_DIR/integration-smoke.log"
+      - name: Run Console CI
+        shell: bash
+        run: |
+          set -o pipefail
+          (cd console && npm run ci) 2>&1 | tee -a "$SUITE_CI_LOG_DIR/integration-smoke.log"
       - uses: actions/upload-artifact@v5
         if: failure()
         with:

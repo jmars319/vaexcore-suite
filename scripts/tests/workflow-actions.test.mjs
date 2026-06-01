@@ -35,10 +35,39 @@ test("Suite CI clones services for service-aware macOS checks", () => {
   );
   assert.match(
     source,
-    /Integration smoke[\s\S]*\.\/scripts\/clone-or-update-apps\.sh --include-services/,
+    /name:\s*Clone app repos for integration smoke[\s\S]*\.\/scripts\/clone-or-update-apps\.sh --include-services/,
   );
   assert.match(source, /Contract checks[\s\S]*node scripts\/check-suite-services\.mjs/);
-  assert.match(source, /Integration smoke[\s\S]*node scripts\/check-suite-services\.mjs/);
+  assert.match(
+    source,
+    /name:\s*Validate app repo branches and services[\s\S]*node scripts\/check-suite-services\.mjs/,
+  );
+});
+
+test("Suite CI exposes integration smoke progress as named steps", () => {
+  const source = readFileSync(join(suiteRoot, ".github/workflows/suite-ci.yml"), "utf8");
+
+  for (const stepName of [
+    "Prepare integration smoke logs",
+    "Clone app repos for integration smoke",
+    "Validate app repo branches and services",
+    "Install Studio dependencies",
+    "Install Pulse dependencies",
+    "Install Console dependencies",
+    "Install Relay dependencies",
+    "Run suite config and contract smoke",
+    "Check bot readiness",
+    "Run Studio CI",
+    "Run Pulse CI",
+    "Run Console CI",
+  ]) {
+    assert.match(source, new RegExp(`name:\\s*${escapeRegExp(stepName)}`));
+  }
+
+  assert.doesNotMatch(
+    source,
+    /name:\s*Integration smoke\s*\n\s*shell:\s*bash\s*\n\s*run:\s*\|[\s\S]*scripts\/smoke-all\.sh/,
+  );
 });
 
 test("Suite CI uploads integration smoke debug artifacts on failure", () => {
@@ -92,4 +121,8 @@ function listWorkflowFiles(dir) {
   return readdirSync(dir)
     .filter((file) => /\.(ya?ml)$/.test(file))
     .map((file) => join(dir, file));
+}
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
