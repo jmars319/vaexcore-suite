@@ -3,7 +3,7 @@
   "apps": [
     {
       "id": "vaexcore-studio",
-      "name": "vaexcore studio",
+      "name": "Vaexcore Studio by Tenra",
       "repo": "https://github.com/jmars319/vaexcore-studio",
       "path": "studio",
       "branch": "main",
@@ -20,7 +20,7 @@
     },
     {
       "id": "vaexcore-pulse",
-      "name": "vaexcore pulse",
+      "name": "Vaexcore Pulse by Tenra",
       "repo": "https://github.com/jmars319/vaexcore-pulse",
       "path": "pulse",
       "branch": "main",
@@ -37,7 +37,7 @@
     },
     {
       "id": "vaexcore-console",
-      "name": "vaexcore console",
+      "name": "Vaexcore Console by Tenra",
       "repo": "https://github.com/jmars319/vaexcore-console",
       "path": "console",
       "branch": "main",
@@ -56,7 +56,7 @@
   "services": [
     {
       "id": "vaexcore-relay",
-      "name": "vaexcore relay",
+      "name": "Vaexcore Relay by Tenra",
       "repo": "https://github.com/jmars319/vaexcore-relay",
       "path": "relay",
       "branch": "main",

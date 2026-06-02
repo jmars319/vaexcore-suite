@@ -26,7 +26,7 @@
   "apps": [
     {
       "id": "vaexcore-studio",
-      "name": "vaexcore studio",
+      "name": "Vaexcore Studio by Tenra",
       "bundleId": "com.vaexcore.studio",
       "macOSInstallPath": "/Applications/vaexcore studio.app",
       "windowsInstallPath": "%LOCALAPPDATA%\\vaexcore studio\\vaexcore-studio.exe",
@@ -43,7 +43,7 @@
     },
     {
       "id": "vaexcore-pulse",
-      "name": "vaexcore pulse",
+      "name": "Vaexcore Pulse by Tenra",
       "bundleId": "com.vaexil.vaexcore.pulse",
       "macOSInstallPath": "/Applications/vaexcore pulse.app",
       "windowsInstallPath": "%LOCALAPPDATA%\\vaexcore pulse\\vaexcore-pulse.exe",
@@ -59,7 +59,7 @@
     },
     {
       "id": "vaexcore-console",
-      "name": "vaexcore console",
+      "name": "Vaexcore Console by Tenra",
       "bundleId": "com.vaexil.vaexcore.console",
       "macOSInstallPath": "/Applications/vaexcore console.app",
       "windowsInstallPath": "%LOCALAPPDATA%\\Programs\\vaexcore console\\vaexcore-console.exe",
@@ -78,7 +78,7 @@
   "services": [
     {
       "id": "vaexcore-relay",
-      "name": "vaexcore relay",
+      "name": "Vaexcore Relay by Tenra",
       "deployment": "cloudflare-worker",
       "discoveryFile": "vaexcore-relay.json",
       "capabilities": [

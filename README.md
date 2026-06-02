@@ -1,13 +1,13 @@
-# vaexcore suite
+# Vaexcore by Tenra
 
-vaexcore suite is the orchestration and distribution layer for the vaexcore local creator-tooling ecosystem. It coordinates the independent Studio, Pulse, Console, and Relay repos through shared protocol docs, launchers, release scripts, and suite packaging helpers.
+Vaexcore by Tenra is the Creator Suite product line for local creator tooling inside Tenra. It coordinates the independent Vaexcore Studio, Pulse, Console, and Relay repos through shared protocol docs, launchers, release scripts, and suite packaging helpers.
 
 The app source stays in the app repos. This repo owns suite-level integration and distribution behavior.
 
 ## Operational Purpose
 
-- Keep the vaexcore desktop apps installable and launchable as a coordinated local suite.
-- Track Relay as a service repo without packaging it as a desktop app.
+- Keep the Vaexcore by Tenra desktop apps installable and launchable as a coordinated local suite.
+- Track Vaexcore Relay by Tenra as a service repo without packaging it as a desktop app.
 - Define shared suite discovery and integration expectations.
 - Provide release, staging, manifest, and launcher scripts.
 - Preserve platform-specific packaging knowledge outside individual app codebases where appropriate.
@@ -45,7 +45,7 @@ docs/            CI and release-readiness documentation
 
 ## Current State
 
-- The suite repo tracks the current Studio, Pulse, Console, and Relay repository relationship.
+- The suite repo tracks the current Vaexcore Studio, Pulse, Console, and Relay repository relationship.
 - macOS and Windows distribution scripts are present.
 - Suite contract and manifest generation are part of the check/release flow.
 - Windows launcher and prerequisite checks have dedicated scripts.
@@ -53,7 +53,7 @@ docs/            CI and release-readiness documentation
 
 ## Deployment Posture
 
-vaexcore suite is release-engineering infrastructure. It is useful for local staging and distribution checks, but the maturity of a suite release depends on the current state of each app repo.
+Vaexcore by Tenra is release-engineering infrastructure for the Creator Suite product line. It is useful for local staging and distribution checks, but the maturity of a suite release depends on the current state of each app repo.
 
 ## Working Locally
 
